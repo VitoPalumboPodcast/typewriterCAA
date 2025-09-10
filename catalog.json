@@ -1,0 +1,29 @@
+[
+  { "cat": "S", "label": "Io", "speak": "Io", "image": "io.png" },
+
+  { "cat": "V", "label": "voglio", "speak": "voglio", "image": "volere.png" },
+  { "cat": "V", "label": "vorrei", "speak": "vorrei", "image": "" },
+  { "cat": "V", "label": "posso", "speak": "posso", "image": "" },
+  { "cat": "V", "label": "non voglio", "speak": "non voglio", "image": "" },
+
+  { "cat": "O", "label": "il panino", "speak": "il panino", "image": "panino.jpg" },
+  { "cat": "O", "label": "il pollo", "speak": "il pollo", "image": "pollo.jpg" },
+  { "cat": "O", "label": "la pizza", "speak": "la pizza", "image": "pizza.jpg" },
+  { "cat": "O", "label": "l'insalata", "speak": "l'insalata", "image": "insalata.jpg" },
+  { "cat": "O", "label": "la melanzana", "speak": "la melanzana", "image": "melanzana.jpg" },
+  { "cat": "O", "label": "l'arancia", "speak": "l'arancia", "image": "arancia.jpg" },
+  { "cat": "O", "label": "la banana", "speak": "la banana", "image": "banana.jpg" },
+  { "cat": "O", "label": "la mela", "speak": "la mela", "image": "mela.jpg" },
+  { "cat": "O", "label": "la carota", "speak": "la carota", "image": "carota.jpg" },
+  { "cat": "O", "label": "la caramella", "speak": "la caramella", "image": "caramella.jpg" },
+  { "cat": "O", "label": "gli spaghetti", "speak": "gli spaghetti", "image": "spaghetti.jpg" },
+  { "cat": "O", "label": "il cioccolatino", "speak": "il cioccolatino", "image": "cioccolatino.jpg" },
+  { "cat": "O", "label": "il cappuccino", "speak": "il cappuccino", "image": "cappuccino.jpg" },
+  { "cat": "O", "label": "le ciliegie", "speak": "le ciliegie", "image": "ciliegie.jpg" },
+
+  { "cat": "X", "label": "per favore", "speak": "per favore", "image": "" },
+  { "cat": "X", "label": "grazie", "speak": "grazie", "image": "" },
+  { "cat": "X", "label": "aiuto", "speak": "aiuto", "image": "" },
+  { "cat": "X", "label": "adesso", "speak": "adesso", "image": "" },
+  { "cat": "X", "label": "poi", "speak": "poi", "image": "" }
+]
