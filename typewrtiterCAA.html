@@ -420,9 +420,30 @@
     /* ============================================================
        TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
        ============================================================ */
-    const synth = window.speechSynthesis;
+    const synth = typeof window !== "undefined" && "speechSynthesis" in window
+      ? window.speechSynthesis
+      : null;
+
+    const ttsControls = [
+      "btn-read","btn-pause","btn-resume","btn-stop",
+      "btn-read-token","autoOn","autoOff"
+    ].map(id => document.getElementById(id));
+
+    if (!synth){
+      ttsControls.forEach(btn => btn && (btn.disabled = true));
+      state.autoSpeak = false;
+      const group = document.querySelector('.toolbar .group[aria-label="Lettura"]');
+      if (group){
+        const warn = document.createElement('span');
+        warn.textContent = 'Sintesi vocale non supportata';
+        warn.setAttribute('role','alert');
+        warn.style.marginLeft = '.5rem';
+        group.appendChild(warn);
+      }
+    }
 
     function refreshVoices(){
+      if (!synth) { state.voices = []; state.preferredVoice = null; return; }
       state.voices = synth.getVoices() || [];
       // Priorità: voce it-IT femminile → qualsiasi it-IT → default
       state.preferredVoice =
@@ -432,14 +453,14 @@
     }
     refreshVoices();
     // Alcuni browser popolano le voci in ritardo
-    if (typeof window !== "undefined"){
-      window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+    if (synth){
+      synth.addEventListener("voiceschanged", refreshVoices);
     }
 
     let currentUtterance = null;
 
     function speak(text){
-      if (!text || !text.trim()) return;
+      if (!synth || !text || !text.trim()) return;
       stopSpeak(); // interrompe eventuale coda in corso e riparte
       currentUtterance = new SpeechSynthesisUtterance(text);
       if (state.preferredVoice) currentUtterance.voice = state.preferredVoice;
@@ -449,9 +470,9 @@
       synth.speak(currentUtterance);
       state.paused = false;
     }
-    function pauseSpeak(){ if (synth.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
-    function resumeSpeak(){ if (synth.paused){ synth.resume(); state.paused = false; } }
-    function stopSpeak(){ if (synth.speaking || synth.paused){ synth.cancel(); } state.paused=false; }
+    function pauseSpeak(){ if (synth && synth.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
+    function resumeSpeak(){ if (synth && synth.paused){ synth.resume(); state.paused = false; } }
+    function stopSpeak(){ if (synth && (synth.speaking || synth.paused)){ synth.cancel(); } state.paused=false; }
 
     function speakAll(){
       const text = state.tokens.map(t => t.speak || t.label).join(" ");
