@@ -202,6 +202,8 @@
           <button id="autoOn" aria-pressed="true" title="Leggi ogni token quando viene aggiunto">Auto On</button>
           <button id="autoOff" aria-pressed="false" title="Non leggere automaticamente i token">Auto Off</button>
         </div>
+        <label for="voiceSelect">Voce</label>
+        <select id="voiceSelect"></select>
       </div>
 
       <!-- Modifica frase -->
@@ -421,14 +423,31 @@
        TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
        ============================================================ */
     const synth = window.speechSynthesis;
+    const voiceSelect = document.getElementById("voiceSelect");
 
     function refreshVoices(){
       state.voices = synth.getVoices() || [];
-      // Priorità: voce it-IT femminile → qualsiasi it-IT → default
+      const saved = localStorage.getItem("preferredVoice");
+      // Priorità: preferenza utente → voce it-IT femminile → qualsiasi it-IT → default
       state.preferredVoice =
+        state.voices.find(v => v.name === saved) ||
         state.voices.find(v => (v.lang || "").toLowerCase()==="it-it" && /female|femmina|donna/i.test(v.name)) ||
         state.voices.find(v => (v.lang || "").toLowerCase()==="it-it") ||
+        state.voices[0] ||
         null;
+      // Popola il select delle voci
+      if (voiceSelect){
+        voiceSelect.innerHTML = "";
+        for (const v of state.voices){
+          const opt = document.createElement("option");
+          opt.value = v.name;
+          opt.textContent = `${v.name} (${v.lang})`;
+          voiceSelect.appendChild(opt);
+        }
+        if (state.preferredVoice){
+          voiceSelect.value = state.preferredVoice.name;
+        }
+      }
     }
     refreshVoices();
     // Alcuni browser popolano le voci in ritardo
@@ -441,6 +460,14 @@
     function speak(text){
       if (!text || !text.trim()) return;
       stopSpeak(); // interrompe eventuale coda in corso e riparte
+      const voices = synth.getVoices();
+      if (state.preferredVoice && !voices.find(v => v.name === state.preferredVoice.name)){
+        state.preferredVoice = voices[0] || null;
+        if (state.preferredVoice){
+          localStorage.setItem("preferredVoice", state.preferredVoice.name);
+          if (voiceSelect) voiceSelect.value = state.preferredVoice.name;
+        }
+      }
       currentUtterance = new SpeechSynthesisUtterance(text);
       if (state.preferredVoice) currentUtterance.voice = state.preferredVoice;
       currentUtterance.lang = (state.preferredVoice?.lang) || "it-IT";
@@ -466,6 +493,14 @@
     document.getElementById("btn-pause").addEventListener("click", pauseSpeak);
     document.getElementById("btn-resume").addEventListener("click", resumeSpeak);
     document.getElementById("btn-stop").addEventListener("click", stopSpeak);
+    if (voiceSelect){
+      voiceSelect.addEventListener("change", () => {
+        state.preferredVoice = state.voices.find(v => v.name === voiceSelect.value) || null;
+        if (state.preferredVoice){
+          localStorage.setItem("preferredVoice", state.preferredVoice.name);
+        }
+      });
+    }
 
     // Auto lettura on/off
     const autoOn  = document.getElementById("autoOn");
