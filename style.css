@@ -1,0 +1,176 @@
+    /* =========================
+       VARIABILI E BASE LAYOUT
+       ========================= */
+    :root{
+      --tile-size: 5.5rem;      /* dimensione base dei pulsanti/pedine */
+      --gap-size: 0.5rem;       /* spaziatura tra pulsanti/pedine */
+      --radius: .6rem;
+      --fg: #111;
+      --bg: #ffffff;
+      --panel: #f6f6f6;
+      --border: #cfcfcf;
+      --accent: #0b6efd;
+      --danger: #c0392b;
+      --ok: #208b3a;
+      --warn: #e67e22;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--fg);
+      background:var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      line-height:1.35;
+    }
+
+    /* =========================
+       APP BAR / STRUMENTI
+       ========================= */
+    .toolbar{
+      position: sticky; top:0;
+      z-index:10;
+      background:var(--panel);
+      border-bottom:1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .toolbar-inner{
+      max-width:1100px;
+      margin:auto;
+      display:flex;
+      gap:.5rem;
+      align-items:center;
+      padding:.5rem;
+      flex-wrap:wrap;
+    }
+    .toolbar .group{
+      display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;
+      background:#fff; border:1px solid var(--border); border-radius: var(--radius);
+      padding:.35rem .5rem;
+    }
+    .toolbar label{ font-size:.9rem; opacity:.85; }
+
+    button, .btn{
+      appearance:none; border:1px solid var(--border);
+      background:#fff; color:var(--fg);
+      padding:.45rem .7rem; border-radius:.5rem; cursor:pointer;
+      font-size:1rem; line-height:1;
+    }
+    button:hover{ background:#fafafa; }
+    button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+    .btn-primary{ border-color:var(--accent); color:#fff; background:var(--accent); }
+    .btn-ghost{ background:transparent; }
+    .btn-danger{ border-color:var(--danger); color:#fff; background:var(--danger); }
+    .btn-ok{ border-color:var(--ok); color:#fff; background:var(--ok); }
+    .btn-warn{ border-color:var(--warn); color:#fff; background:var(--warn); }
+    .segmented{
+      display:flex; border:1px solid var(--border); border-radius:.5rem; overflow:hidden;
+    }
+    .segmented button{ border:0; border-right:1px solid var(--border); }
+    .segmented button:last-child{ border-right:0; }
+    .segmented button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+
+    input[type="range"]{ accent-color: var(--accent); }
+
+    /* =========================
+       CONTENUTO
+       ========================= */
+    .container{ max-width:1100px; margin: 1rem auto; padding: 0 1rem; }
+
+    /* Frase composta (token testuali) */
+    #sentence{
+      min-height: 3.2rem;
+      padding: .6rem;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background:#fff;
+      font-size:1.4rem;
+      display:flex; flex-wrap:wrap; gap:.35rem;
+    }
+    .token{
+      padding:.1rem .4rem;
+      border:2px solid #999;
+      border-radius:.4rem;
+      background:#fff;
+      box-shadow: var(--shadow);
+      align-self:center;
+    }
+    .token[data-cat="S"]{ border-color:#e74c3c; }
+    .token[data-cat="V"]{ border-color:#2980b9; }
+    .token[data-cat="O"]{ border-color:#27ae60; }
+    .token[data-cat="X"]{ border-color:#8e44ad; }
+
+    /* Output simbolico (simbolo + immagine) */
+    #output{
+      margin-top:.6rem;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background:#fff;
+      padding:.4rem;
+      display:flex; flex-wrap:wrap; gap:.4rem;
+      min-height:6rem;
+    }
+    .chip{
+      display:flex; align-items:center; gap:.35rem;
+      border:1px dashed #bbb; border-radius:.6rem;
+      background:#fafafa; padding:.35rem .5rem;
+    }
+    .chip img{
+      display:block; width:3.2rem; height:3.2rem; object-fit:cover; border-radius:.4rem;
+      border:1px solid #ddd; background:#fff;
+    }
+    .chip .label{ font-size:1.2rem; }
+
+    /* Griglia categorie / pulsanti */
+    .section{ margin-top:1rem; }
+    .section h2{
+      font-size:1rem; font-weight:600; margin:.2rem 0 .5rem;
+      color:#555; letter-spacing:.02em; text-transform:uppercase;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--tile-size), 1fr));
+      gap: var(--gap-size);
+    }
+    .tile{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:.35rem; padding:.4rem;
+      background:#fff; border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      min-height: calc(var(--tile-size) + 1.2rem);
+    }
+    .tile:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+    .tile img{
+      width: calc(var(--tile-size) - 1.2rem);
+      height: calc(var(--tile-size) - 1.2rem);
+      object-fit: cover;
+      border-radius:.4rem;
+      border:1px solid #e1e1e1;
+      background:#fff;
+    }
+    .tile .tlabel{ font-size:1rem; line-height:1.1; text-align:center; }
+
+    /* Colori cornice per categorie */
+    .tile.S{ border-color:#e74c3c; }
+    .tile.V{ border-color:#2980b9; }
+    .tile.O{ border-color:#27ae60; }
+    .tile.X{ border-color:#8e44ad; }
+
+    /* Info */
+    .note{
+      font-size:.92rem; color:#666; margin-top:.5rem;
+    }
+
+    /* Alto contrasto */
+    .high-contrast{
+      --bg:#000; --fg:#fff; --panel:#000; --border:#888; --shadow:none;
+      --accent:#ffd400;
+    }
+    .high-contrast button{ border-color:#888; }
+    .high-contrast .tile{ background:#000; }
+    .high-contrast .tile img{ border-color:#555; }
+    .high-contrast #sentence, .high-contrast #output{ background:#000; }
