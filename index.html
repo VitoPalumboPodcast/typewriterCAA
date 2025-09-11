@@ -205,17 +205,25 @@
       </div>
 
       <!-- Modifica frase -->
-      <div class="group" role="group" aria-label="Modifica frase">
-        <button id="btn-undo" title="Annulla ultimo token (Ctrl+Z)">Annulla</button>
-        <button id="btn-clear" class="btn-ghost" title="Cancella frase">Cancella</button>
-        <button id="btn-read-token" class="btn-ghost" title="Leggi token selezionato">Leggi token</button>
-      </div>
+        <div class="group" role="group" aria-label="Modifica frase">
+          <button id="btn-undo" title="Annulla ultimo token (Ctrl+Z)">Annulla</button>
+          <button id="btn-clear" class="btn-ghost" title="Cancella frase">Cancella</button>
+          <button id="btn-read-token" class="btn-ghost" title="Leggi token selezionato">Leggi token</button>
+        </div>
 
-      <!-- Aspetto / Accessibilità -->
-      <div class="group" role="group" aria-label="Aspetto">
-        <label for="size">Larghezza</label>
-        <input id="size" type="range" min="4.5" max="8.5" step=".5" value="5.5" />
-        <label for="gap">Spaziatura</label>
+        <!-- Scansione automatica -->
+        <div class="group" role="group" aria-label="Scansione">
+          <button id="btn-scan-start" class="btn-ghost" title="Avvia scansione automatica">Avvia</button>
+          <button id="btn-scan-stop" class="btn-ghost" title="Ferma scansione">Ferma</button>
+          <label for="scan-speed">Velocità</label>
+          <input id="scan-speed" type="range" min="500" max="3000" step="100" value="1500" />
+        </div>
+
+        <!-- Aspetto / Accessibilità -->
+        <div class="group" role="group" aria-label="Aspetto">
+          <label for="size">Larghezza</label>
+          <input id="size" type="range" min="4.5" max="8.5" step=".5" value="5.5" />
+          <label for="gap">Spaziatura</label>
         <input id="gap" type="range" min="0.2" max="1.2" step=".1" value="0.5" />
         <button id="btn-contrast" class="btn-ghost" title="Alto contrasto (C)">Contrasto</button>
       </div>
@@ -315,7 +323,11 @@
       filter: "ALL",              // filtro categoria corrente
       voices: [],                 // voci TTS disponibili
       preferredVoice: null,       // voce preferita (it-IT se possibile)
-      paused: false
+      paused: false,
+      scanActive: false,          // scansione automatica attiva?
+      scanSpeed: 1500,            // intervallo scansione in ms
+      scanIndex: -1,              // indice corrente nella griglia
+      scanTimer: null             // handle setInterval
     };
 
     /* ============================================================
@@ -324,6 +336,10 @@
     const gridEl     = document.getElementById("grid");
     const sentenceEl = document.getElementById("sentence");
     const outputEl   = document.getElementById("output");
+    // controlli scansione
+    const btnScanStart = document.getElementById("btn-scan-start");
+    const btnScanStop  = document.getElementById("btn-scan-stop");
+    const scanSpeedInput = document.getElementById("scan-speed");
 
     function buildGrid(){
       gridEl.innerHTML = "";
@@ -357,6 +373,10 @@
         b.addEventListener("keydown", (e)=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); b.click(); } });
 
         gridEl.appendChild(b);
+      }
+      if (state.scanActive){
+        state.scanIndex = -1;
+        cycleFocus();
       }
     }
 
@@ -416,6 +436,44 @@
       state.tokens = [];
       renderSentence(); renderOutput();
     }
+
+    /* ============================================================
+       SCANSIONE AUTOMATICA GRIGLIA
+       ============================================================ */
+    function cycleFocus(){
+      const btns = gridEl.querySelectorAll("button");
+      if (!btns.length) return;
+      state.scanIndex = (state.scanIndex + 1) % btns.length;
+      btns[state.scanIndex].focus();
+    }
+
+    function startScan(){
+      stopScan();
+      state.scanActive = true;
+      state.scanIndex = -1;
+      cycleFocus();
+      state.scanTimer = setInterval(cycleFocus, state.scanSpeed);
+    }
+
+    function stopScan(){
+      state.scanActive = false;
+      if (state.scanTimer){
+        clearInterval(state.scanTimer);
+        state.scanTimer = null;
+      }
+    }
+
+    function updateScanSpeed(){
+      state.scanSpeed = parseInt(scanSpeedInput.value, 10);
+      localStorage.setItem("scanSpeed", state.scanSpeed);
+      if (state.scanActive){
+        startScan();
+      }
+    }
+
+    btnScanStart.addEventListener("click", startScan);
+    btnScanStop.addEventListener("click", stopScan);
+    scanSpeedInput.addEventListener("input", updateScanSpeed);
 
     /* ============================================================
        TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
@@ -525,6 +583,14 @@
        TASTI RAPIDI
        ============================================================ */
     document.addEventListener("keydown", (e)=>{
+      if (state.scanActive){
+        e.preventDefault();
+        const focused = document.activeElement;
+        if (focused && focused.classList.contains("tile")){
+          focused.click();
+        }
+        return;
+      }
       if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
 
       if (e.key === "Enter"){
@@ -542,21 +608,36 @@
       }
     });
 
+    document.addEventListener("click", (e)=>{
+      if (!state.scanActive) return;
+      if (e.target.closest('.toolbar') || e.target.closest('#grid')) return;
+      e.preventDefault();
+      const focused = document.activeElement;
+      if (focused && focused.classList.contains('tile')){
+        focused.click();
+      }
+    });
+
     /* ============================================================
        PERSISTENZA PREFERENZE
        ============================================================ */
-    (function restorePrefs(){
-      const as = localStorage.getItem("autoSpeak");
-      const ts = localStorage.getItem("tileSize");
-      const gs = localStorage.getItem("gapSize");
-      const hc = localStorage.getItem("contrast");
+      (function restorePrefs(){
+        const as = localStorage.getItem("autoSpeak");
+        const ts = localStorage.getItem("tileSize");
+        const gs = localStorage.getItem("gapSize");
+        const hc = localStorage.getItem("contrast");
+        const ss = localStorage.getItem("scanSpeed");
 
-      if (as !== null) setAuto(as==="1");
-      if (ts){ size.value = ts; }
-      if (gs){ gap.value  = gs; }
-      applySizes();
-      if (hc==="1") document.body.classList.add("high-contrast");
-    })();
+        if (as !== null) setAuto(as==="1");
+        if (ts){ size.value = ts; }
+        if (gs){ gap.value  = gs; }
+        applySizes();
+        if (hc==="1") document.body.classList.add("high-contrast");
+        if (ss){
+          scanSpeedInput.value = ss;
+          updateScanSpeed();
+        }
+      })();
 
     /* ============================================================
        AVVIO
