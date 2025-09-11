@@ -228,6 +228,11 @@
           <button data-filter="V" aria-pressed="false">Verbi</button>
           <button data-filter="O" aria-pressed="false">Oggetti</button>
           <button data-filter="X" aria-pressed="false">Sociali/Altro</button>
+          <button data-filter="P" aria-pressed="false">Persone</button>
+          <button data-filter="A" aria-pressed="false">Azioni</button>
+          <button data-filter="L" aria-pressed="false">Luoghi</button>
+          <button data-filter="T" aria-pressed="false">Tempo</button>
+          <button data-filter="E" aria-pressed="false">Emozioni</button>
         </div>
       </div>
 
@@ -302,11 +307,36 @@
       { cat: "X", label: "grazie", speak: "grazie", image: "" },
       { cat: "X", label: "aiuto", speak: "aiuto", image: "" },
       { cat: "X", label: "adesso", speak: "adesso", image: "" },
-      { cat: "X", label: "poi", speak: "poi", image: "" }
+      { cat: "X", label: "poi", speak: "poi", image: "" },
+
+      // PERSONE (P)
+      { cat: "P", label: "mamma", speak: "mamma", image: "" },
+
+      // AZIONI (A)
+      { cat: "A", label: "dormire", speak: "dormire", image: "" },
+
+      // LUOGHI (L)
+      { cat: "L", label: "casa", speak: "casa", image: "" },
+
+      // TEMPO (T)
+      { cat: "T", label: "oggi", speak: "oggi", image: "" },
+
+      // EMOZIONI (E)
+      { cat: "E", label: "felice", speak: "felice", image: "" }
     ];
 
     // Colori cornice per chip/token per coerenza visiva
-    const BORDER_BY_CAT = { S: "#e74c3c", V: "#2980b9", O: "#27ae60", X: "#8e44ad" };
+    const BORDER_BY_CAT = {
+      S: "#e74c3c",
+      V: "#2980b9",
+      O: "#27ae60",
+      X: "#8e44ad",
+      P: "#f39c12",
+      A: "#d35400",
+      L: "#16a085",
+      T: "#f1c40f",
+      E: "#f012be"
+    };
 
     // Stato applicativo
     const state = {
