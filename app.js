@@ -25,7 +25,10 @@ const state = {
   filter: "ALL",              // filtro categoria corrente
   voices: [],                 // voci TTS disponibili
   preferredVoice: null,       // voce preferita (it-IT se possibile)
-  paused: false
+  paused: false,
+  rate: 0.9,
+  pitch: 0.9,
+  savedVoice: null
 };
 
 /* ============================================================
@@ -149,11 +152,29 @@ const synth = supportsTTS ? window.speechSynthesis : null;
 function refreshVoices(){
   if (!synth) return;
   state.voices = synth.getVoices() || [];
-  // Priorità: voce it-IT femminile → qualsiasi it-IT → default
-  state.preferredVoice =
-    state.voices.find(v => (v.lang || "").toLowerCase()==="it-it" && /female|femmina|donna/i.test(v.name)) ||
-    state.voices.find(v => (v.lang || "").toLowerCase()==="it-it") ||
-    null;
+  if (voiceSel){
+    voiceSel.innerHTML = '';
+    state.voices.forEach((v,i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${v.name} (${v.lang})`;
+      voiceSel.appendChild(opt);
+    });
+    let idx = -1;
+    if (state.savedVoice){
+      idx = state.voices.findIndex(v => v.name === state.savedVoice);
+    }
+    if (idx < 0){
+      idx = state.voices.findIndex(v => (v.lang || '').toLowerCase()==='it-it' && /female|femmina|donna/i.test(v.name));
+      if (idx < 0) idx = state.voices.findIndex(v => (v.lang || '').toLowerCase()==='it-it');
+    }
+    if (idx >= 0){
+      voiceSel.value = String(idx);
+      state.preferredVoice = state.voices[idx];
+    } else {
+      state.preferredVoice = null;
+    }
+  }
 }
 if (synth){
   refreshVoices();
@@ -168,8 +189,8 @@ function speak(text){
   currentUtterance = new SpeechSynthesisUtterance(text);
   if (state.preferredVoice) currentUtterance.voice = state.preferredVoice;
   currentUtterance.lang = (state.preferredVoice?.lang) || "it-IT";
-  currentUtterance.rate = 0.9;
-  currentUtterance.pitch = 0.9;
+  currentUtterance.rate = state.rate;
+  currentUtterance.pitch = state.pitch;
   synth.speak(currentUtterance);
   state.paused = false;
 }
@@ -191,10 +212,27 @@ const btnRead = document.getElementById("btn-read");
 const btnPause = document.getElementById("btn-pause");
 const btnResume = document.getElementById("btn-resume");
 const btnStop = document.getElementById("btn-stop");
+const voiceSel = document.getElementById("voice");
+const rateInput = document.getElementById("rate");
+const pitchInput = document.getElementById("pitch");
 btnRead.addEventListener("click", speakAll);
 btnPause.addEventListener("click", pauseSpeak);
 btnResume.addEventListener("click", resumeSpeak);
 btnStop.addEventListener("click", stopSpeak);
+if (voiceSel) voiceSel.addEventListener('change', () => {
+  const idx = parseInt(voiceSel.value, 10);
+  state.preferredVoice = state.voices[idx] || null;
+  state.savedVoice = state.preferredVoice?.name || null;
+  localStorage.setItem('voiceName', state.savedVoice || '');
+});
+if (rateInput) rateInput.addEventListener('input', () => {
+  state.rate = parseFloat(rateInput.value);
+  localStorage.setItem('rate', rateInput.value);
+});
+if (pitchInput) pitchInput.addEventListener('input', () => {
+  state.pitch = parseFloat(pitchInput.value);
+  localStorage.setItem('pitch', pitchInput.value);
+});
 
 // Auto lettura on/off
 const autoOn  = document.getElementById("autoOn");
@@ -282,6 +320,13 @@ document.addEventListener("keydown", (e)=>{
   const ts = localStorage.getItem("tileSize");
   const gs = localStorage.getItem("gapSize");
   const hc = localStorage.getItem("contrast");
+  const vn = localStorage.getItem("voiceName");
+  const rt = localStorage.getItem("rate");
+  const pt = localStorage.getItem("pitch");
+
+  if (vn) state.savedVoice = vn;
+  if (rt){ state.rate = parseFloat(rt); rateInput.value = rt; }
+  if (pt){ state.pitch = parseFloat(pt); pitchInput.value = pt; }
 
   if (as !== null) setAuto(as==="1");
   if (ts){ size.value = ts; }
@@ -299,6 +344,9 @@ if (!synth){
     b.title = 'Sintesi vocale non supportata';
   });
   autoOn.disabled = autoOff.disabled = true;
+  if (voiceSel) voiceSel.disabled = true;
+  if (rateInput) rateInput.disabled = true;
+  if (pitchInput) pitchInput.disabled = true;
   state.autoSpeak = false;
   const warn = document.createElement('p');
   warn.className = 'note';
