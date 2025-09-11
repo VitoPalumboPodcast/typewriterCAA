@@ -508,9 +508,14 @@
     /* ============================================================
        TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
        ============================================================ */
-    const synth = window.speechSynthesis;
+    const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
 
     function refreshVoices(){
+      if (!synth){
+        state.voices = [];
+        state.preferredVoice = null;
+        return;
+      }
       state.voices = synth.getVoices() || [];
       // Priorità: voce it-IT femminile → qualsiasi it-IT → default
       state.preferredVoice =
@@ -519,14 +524,17 @@
         null;
     }
     refreshVoices();
-    // Alcuni browser popolano le voci in ritardo
-    if (typeof window !== "undefined"){
-      window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+    if (synth){
+      synth.addEventListener("voiceschanged", refreshVoices);
     }
 
     let currentUtterance = null;
 
     function speak(text){
+      if (!synth){
+        console.warn("Speech synthesis not supported");
+        return;
+      }
       if (!text || !text.trim()) return;
       stopSpeak(); // interrompe eventuale coda in corso e riparte
       currentUtterance = new SpeechSynthesisUtterance(text);
@@ -537,9 +545,37 @@
       synth.speak(currentUtterance);
       state.paused = false;
     }
-    function pauseSpeak(){ if (synth.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
-    function resumeSpeak(){ if (synth.paused){ synth.resume(); state.paused = false; } }
-    function stopSpeak(){ if (synth.speaking || synth.paused){ synth.cancel(); } state.paused=false; }
+    function pauseSpeak(){
+      if (!synth){
+        console.warn("Speech synthesis not supported");
+        return;
+      }
+      if (synth.speaking && !synth.paused){
+        synth.pause();
+        state.paused = true;
+      }
+    }
+    function resumeSpeak(){
+      if (!synth){
+        console.warn("Speech synthesis not supported");
+        return;
+      }
+      if (synth.paused){
+        synth.resume();
+        state.paused = false;
+      }
+    }
+    function stopSpeak(){
+      if (!synth){
+        console.warn("Speech synthesis not supported");
+        state.paused = false;
+        return;
+      }
+      if (synth.speaking || synth.paused){
+        synth.cancel();
+      }
+      state.paused=false;
+    }
 
     function speakAll(){
       const text = state.tokens.map(t => t.speak || t.label).join(" ");
@@ -550,10 +586,14 @@
        CONTROLLI TOOLBAR
        ============================================================ */
     // Lettura
-    document.getElementById("btn-read").addEventListener("click", speakAll);
-    document.getElementById("btn-pause").addEventListener("click", pauseSpeak);
-    document.getElementById("btn-resume").addEventListener("click", resumeSpeak);
-    document.getElementById("btn-stop").addEventListener("click", stopSpeak);
+    const btnRead = document.getElementById("btn-read");
+    const btnPause = document.getElementById("btn-pause");
+    const btnResume = document.getElementById("btn-resume");
+    const btnStop = document.getElementById("btn-stop");
+    btnRead.addEventListener("click", speakAll);
+    btnPause.addEventListener("click", pauseSpeak);
+    btnResume.addEventListener("click", resumeSpeak);
+    btnStop.addEventListener("click", stopSpeak);
 
     // Auto lettura on/off
     const autoOn  = document.getElementById("autoOn");
@@ -567,10 +607,18 @@
     autoOn.addEventListener("click", ()=> setAuto(true));
     autoOff.addEventListener("click",()=> setAuto(false));
 
+    const btnReadToken = document.getElementById("btn-read-token");
+
+    if (!synth){
+      const ttsGroup = document.querySelector('[aria-label="Lettura"]');
+      if (ttsGroup) ttsGroup.hidden = true;
+      if (btnReadToken) btnReadToken.hidden = true;
+    }
+
     // Undo / Clear / Leggi token selezionato
     document.getElementById("btn-undo").addEventListener("click", undoLast);
     document.getElementById("btn-clear").addEventListener("click", clearAll);
-    document.getElementById("btn-read-token").addEventListener("click", ()=>{
+    btnReadToken.addEventListener("click", ()=>{
       const focused = document.activeElement;
       if (focused && focused.classList.contains("token")){
         speak(focused.textContent.trim());
