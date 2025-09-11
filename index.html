@@ -301,8 +301,9 @@
       { cat: "X", label: "per favore", speak: "per favore", image: "" },
       { cat: "X", label: "grazie", speak: "grazie", image: "" },
       { cat: "X", label: "aiuto", speak: "aiuto", image: "" },
-      { cat: "X", label: "adesso", speak: "adesso", image: "" },
-      { cat: "X", label: "poi", speak: "poi", image: "" }
+      { cat: "X", label: "non", speak: "non", negateNext: true, image: "" },
+      { cat: "X", label: "adesso", speak: "adesso", tenseNext: "present", image: "" },
+      { cat: "X", label: "poi", speak: "poi", tenseNext: "future", image: "" }
     ];
 
     // Colori cornice per chip/token per coerenza visiva
@@ -360,6 +361,57 @@
       }
     }
 
+    function guessArticle(base, gender="M", plural=false){
+      const vowel = /^[aeiouàèéìòóù]/i.test(base);
+      const impure = /^(s[bcdfghjklmnpqrstvz]|z)/i.test(base);
+      if (gender === "F"){
+        if (plural) return "le";
+        return vowel ? "l'" : "la";
+      } else {
+        if (plural) return (vowel || impure) ? "gli" : "i";
+        return vowel ? "l'" : (impure ? "lo" : "il");
+      }
+    }
+
+    function buildSentence(tokens){
+      const words = [];
+      let negateNext = false;
+      let nextTense = null;
+      tokens.forEach(t => {
+        if (!t) return;
+        let text = t.speak || t.label || "";
+
+        if (t.negateNext || (/^non$/i.test(text) && t.cat !== "V")){
+          negateNext = true;
+          return; // salta la parola "non" come token separato
+        }
+        if (t.tenseNext){
+          nextTense = t.tenseNext;
+          return;
+        }
+
+        if (t.cat === "V"){
+          const tense = nextTense || t.tense || "present";
+          if (t.forms && t.forms[tense]) text = t.forms[tense];
+          if (negateNext){
+            text = "non " + text;
+            negateNext = false;
+          }
+          nextTense = null;
+        } else if (t.cat === "S" || t.cat === "O") {
+          if (t.base){
+            const art = t.article || guessArticle(t.base, t.gender, t.plural);
+            text = art + (art.endsWith("'") ? "" : " ") + t.base;
+          } else if (t.article){
+            text = t.article + " " + text;
+          }
+        }
+
+        words.push(text);
+      });
+      return words.join(" ");
+    }
+
     function renderSentence(){
       sentenceEl.innerHTML = "";
       state.tokens.forEach((t, idx) => {
@@ -373,6 +425,7 @@
         s.addEventListener("click", ()=> speak(t.speak || t.label));
         sentenceEl.appendChild(s);
       });
+      sentenceEl.setAttribute("data-sentence", buildSentence(state.tokens));
     }
 
     function renderOutput(){
@@ -454,7 +507,7 @@
     function stopSpeak(){ if (synth.speaking || synth.paused){ synth.cancel(); } state.paused=false; }
 
     function speakAll(){
-      const text = state.tokens.map(t => t.speak || t.label).join(" ");
+      const text = buildSentence(state.tokens);
       speak(text);
     }
 
