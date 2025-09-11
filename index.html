@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Macchina da scrivere simbolica – v2 accessibile</title>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- =========================
+       BARRA STRUMENTI ACCESSO
+       ========================= -->
+  <div class="toolbar" role="region" aria-label="Strumenti">
+    <div class="toolbar-inner">
+
+      <!-- Lettura / TTS -->
+      <div class="group" role="group" aria-label="Lettura">
+        <button class="btn-primary" id="btn-read" title="Leggi tutta la frase (Invio)">Leggi</button>
+        <button class="btn-warn" id="btn-pause" title="Metti in pausa la lettura (P)">Pausa</button>
+        <button class="btn-ok" id="btn-resume" title="Riprendi la lettura (R)">Riprendi</button>
+        <button class="btn-danger" id="btn-stop" title="Ferma la lettura (S)">Stop</button>
+        <div class="segmented" role="group" aria-label="Auto-lettura token">
+          <button id="autoOn" aria-pressed="true" title="Leggi ogni token quando viene aggiunto">Auto On</button>
+          <button id="autoOff" aria-pressed="false" title="Non leggere automaticamente i token">Auto Off</button>
+        </div>
+      </div>
+
+      <!-- Modifica frase -->
+      <div class="group" role="group" aria-label="Modifica frase">
+        <button id="btn-undo" title="Annulla ultimo token (Ctrl+Z)">Annulla</button>
+        <button id="btn-clear" class="btn-ghost" title="Cancella frase">Cancella</button>
+        <button id="btn-read-token" class="btn-ghost" title="Leggi token selezionato">Leggi token</button>
+      </div>
+
+      <!-- Aspetto / Accessibilità -->
+      <div class="group" role="group" aria-label="Aspetto">
+        <label for="size">Larghezza</label>
+        <input id="size" type="range" min="4.5" max="8.5" step=".5" value="5.5" />
+        <label for="gap">Spaziatura</label>
+        <input id="gap" type="range" min="0.2" max="1.2" step=".1" value="0.5" />
+        <button id="btn-contrast" class="btn-ghost" title="Alto contrasto (C)">Contrasto</button>
+      </div>
+
+      <!-- Filtri categorie -->
+      <div class="group" role="group" aria-label="Categorie">
+        <div class="segmented" id="filters" role="tablist" aria-label="Filtra categoria">
+          <button data-filter="ALL" aria-pressed="true">Tutte</button>
+          <button data-filter="S" aria-pressed="false">Soggetti</button>
+          <button data-filter="V" aria-pressed="false">Verbi</button>
+          <button data-filter="O" aria-pressed="false">Oggetti</button>
+          <button data-filter="X" aria-pressed="false">Sociali/Altro</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- =========================
+         FRASE + OUTPUT SIMBOLICO
+         ========================= -->
+    <div class="section" aria-live="polite" aria-label="Frase composta">
+      <h2>Frase</h2>
+      <div id="sentence"></div>
+      <div id="output" class="mt"></div>
+      <p class="note">Suggerimento: clicca le pedine in basso. <kbd>Invio</kbd> legge tutta la frase. <kbd>Ctrl</kbd>+<kbd>Z</kbd> annulla l’ultimo token. Usa <em>Filtra categoria</em> per ridurre il carico visivo.</p>
+    </div>
+
+    <!-- =========================
+         PALETTE PULSANTI
+         ========================= -->
+    <div class="section">
+      <h2>Selettore</h2>
+      <div id="grid" class="grid" role="grid" aria-label="Pulsanti comunicativi"></div>
+    </div>
+  </div>
+
+  <!-- =========================
+       NOTE TECNICHE
+       - Immagini caricate da https://www.vitopalumbo.it/INCLUSIONE/
+       - Nessun backend. Tutto client-side.
+       - Accessibilità: pulsanti <button>, aria-pressed, focus visibile, tastiera.
+       - Preferenze utente (auto-lettura, dimensioni, contrasto) persistite in localStorage.
+       - TTS robusto con gestione voci it-IT e controlli pausa/riprendi/stop.
+       - Filtro categorie per ridurre carico visivo.
+       ========================= -->
+  <script src="app.js"></script>
+</body>
+</html>
