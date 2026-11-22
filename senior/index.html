@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="only light" />
+  <title>Typewriter CAA Senior</title>
+
+  <style>
+    /* =========================
+       VARIABILI E BASE LAYOUT
+       ========================= */
+    :root{
+      color-scheme: only light;
+      --tile-size: 7rem;      /* dimensione base dei pulsanti/pedine */
+      --gap-size: 0.65rem;       /* spaziatura tra pulsanti/pedine */
+      --radius: .6rem;
+      --fg: #111;
+      --bg: #ffffff;
+      --panel: #f6f6f6;
+      --border: #cfcfcf;
+      --accent: #164f81;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height:100%; background:#fff; }
+    body{
+      margin:0;
+      color:var(--fg);
+      background:var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      line-height:1.35;
+    }
+
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--fg);
+      min-width:44px;
+      min-height:44px;
+      padding:.55rem .75rem;
+      border-radius:.55rem;
+      font:inherit;
+      cursor:pointer;
+    }
+    button:hover{ filter:brightness(.94); }
+    button:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
+    button:disabled{ color:#666; cursor:default; }
+    button[aria-pressed="true"], .btn-primary{
+      border-color:var(--accent);
+      color:#fff;
+      background:var(--accent);
+    }
+    .btn-primary:disabled{ background:#edf2fa; border-color:#d1dbe9; }
+    input{ accent-color:var(--accent); }
+    [hidden]{ display:none !important; }
+
+    .container{ max-width:1100px; margin:auto; padding:0 1rem; }
+    .composer{
+      position:sticky;
+      top:0;
+      z-index:2;
+      padding:.55rem 0 .65rem;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .section-heading, .actions, .categories{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:.45rem;
+    }
+    .section-heading{ justify-content:space-between; }
+    h1, h2{ font-size:1rem; margin:.25rem 0; }
+    .settings-link{ border-color:transparent; color:#444; font-size:.86rem; }
+    #sentence{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.4rem;
+      min-height:3.25rem;
+      max-height:clamp(3.25rem, 20dvh, 8rem);
+      overflow:auto;
+      align-content:flex-start;
+      align-items:center;
+      padding:.35rem;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:var(--panel);
+    }
+    .sentence-word{ display:flex; align-items:center; gap:.35rem; padding:.25rem .5rem; }
+    .actions{ margin-top:.5rem; }
+    .actions button{ font-size:.9rem; }
+    #btn-read{ min-width:6.8rem; font-weight:650; }
+    #btn-clear{ margin-inline-start:auto; }
+    .vocabulary{ margin-top:1rem; }
+    .categories{ margin:.5rem 0 .75rem; }
+    .categories button{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      background:#f0f2f5;
+      font-weight:600;
+    }
+    .categories button[aria-pressed="true"]{
+      color:#fff;
+      background:var(--accent);
+    }
+    .category-icon{ font-size:1.15em; line-height:1; }
+    .tile{ scroll-margin-block-start:min(15rem, 55dvh); }
+    .tile.scanning{ outline:3px solid var(--accent); outline-offset:2px; }
+    .settings{
+      width:min(32rem, calc(100% - 2rem));
+      max-height:calc(100% - 2rem);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:1rem;
+      color:var(--fg);
+      background:#fff;
+    }
+    .settings::backdrop{ background:rgb(0 0 0 / .38); }
+    .settings fieldset{
+      margin:.75rem 0 0;
+      padding:.55rem .7rem;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+    }
+    .settings label{ display:flex; align-items:center; gap:.45rem; min-height:44px; }
+    .settings input[type="range"]{ flex:1; min-width:0; }
+    .category-options{ display:flex; flex-wrap:wrap; column-gap:1rem; }
+    @media (max-height:450px){ .composer{ position:static; } }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--tile-size), 1fr));
+      gap: var(--gap-size);
+    }
+    .tile{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:.35rem; padding:.4rem;
+      background:#fff; border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      min-height: calc(var(--tile-size) + 1.2rem);
+    }
+    .tile:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+    .tile .tlabel{ font-size:1rem; line-height:1.1; text-align:center; }
+
+    h1{ font-size:1.15rem; }
+    h2{ font-size:1.08rem; }
+    .senior .actions button{ font-size:1rem; min-height:48px; }
+    .categories button{ min-height:48px; }
+    .tile{
+      border-color:#9eabbb;
+      min-height:max(7rem, var(--tile-size));
+      padding:.65rem .45rem;
+    }
+    .tile .tlabel{ font-size:1.12rem; line-height:1.25; font-weight:600; }
+    .card-icon{ font-size:2rem; line-height:1; }
+    .sentence-word .card-icon{ font-size:1.25rem; }
+    .quick-section{ margin-top:1rem; }
+    .quick-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(min(100%, 8rem), 1fr));
+      gap:.55rem;
+      margin-top:.45rem;
+    }
+    .quick-tile{
+      min-height:4.5rem;
+      background:#eaf2fa;
+      border-color:#7f9cb8;
+    }
+    .quick-tile .card-icon{ font-size:1.65rem; }
+    .quick-tile .tlabel{ font-size:1rem; }
+    .quick-tile[data-message="aiuto"], .quick-tile[data-message="toilette"]{
+      background:#fff0da;
+      border-color:#aa6d21;
+    }
+    footer a{ color:#164f81; }
+
+    /* Info */
+    .note{
+      font-size:.92rem; color:#666; margin-top:.5rem;
+    }
+
+    footer{
+      text-align:center;
+      padding:1rem;
+      margin-top:2rem;
+      font-size:.9rem;
+      background:var(--panel);
+      border-top:1px solid var(--border);
+    }
+
+    /* Alto contrasto */
+    .high-contrast{
+      --fg:#000; --panel:#fff; --border:#555; --shadow:none;
+      --accent:#0349aa;
+    }
+    .high-contrast .note, .high-contrast h2{ color:#111; }
+  </style>
+</head>
+<body>
+
+  <main class="container senior">
+    <section class="composer" aria-labelledby="sentence-title">
+      <div class="section-heading">
+        <h1 id="sentence-title">Il mio messaggio</h1>
+        <button class="settings-link" id="btn-settings" type="button" aria-haspopup="dialog">Impostazioni di accesso</button>
+      </div>
+      <div id="sentence" aria-live="polite" aria-label="Frase composta"></div>
+      <div class="actions" role="group" aria-label="Azioni sulla frase">
+        <button class="btn-primary" id="btn-read" type="button">Leggi frase</button>
+        <button id="btn-undo" type="button">Togli ultima parola</button>
+        <button id="btn-clear" type="button">Nuova frase</button>
+        <button id="btn-restore" type="button" hidden>Recupera frase</button>
+        <button id="btn-pause" type="button" hidden>Pausa</button>
+      </div>
+      <p id="speech-status" class="note" role="status" hidden></p>
+    </section>
+
+    <section class="quick-section" aria-labelledby="quick-title">
+      <div class="section-heading">
+        <h2 id="quick-title">Richieste rapide</h2>
+        <button id="btn-scan" type="button" hidden>Avvia scansione</button>
+      </div>
+      <div id="quick-grid" class="quick-grid" role="group" aria-labelledby="quick-title"></div>
+    </section>
+
+    <section class="vocabulary" aria-labelledby="words-title">
+      <div class="section-heading">
+        <h2 id="words-title">Bisogni quotidiani</h2>
+      </div>
+      <div class="categories" id="filters" role="group" aria-label="Categorie"></div>
+      <div id="grid" class="grid" role="group" aria-label="Caselle di comunicazione"></div>
+    </section>
+  </main>
+
+  <dialog class="settings" id="access-settings" aria-labelledby="settings-title">
+    <form method="dialog">
+      <div class="section-heading">
+        <h2 id="settings-title">Impostazioni di accesso</h2>
+        <button type="submit" autofocus>Chiudi</button>
+      </div>
+      <fieldset>
+        <legend>Aspetto</legend>
+        <label>Dimensione caselle <input id="size" type="range" min="4.5" max="8.5" step=".5" value="7"></label>
+        <label>Spaziatura <input id="gap" type="range" min="0.2" max="1.2" step=".1" value="0.7"></label>
+        <label><input id="contrast" type="checkbox"> Alto contrasto</label>
+      </fieldset>
+      <fieldset>
+        <legend>Categorie visibili</legend>
+        <div class="category-options" id="category-options"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Lettura e scansione</legend>
+        <label><input id="show-pause" type="checkbox"> Mostra Pausa e Riprendi</label>
+        <label><input id="enable-scan" type="checkbox"> Mostra il comando di scansione</label>
+        <label>Intervallo di scansione <input id="scan-speed" type="range" min="500" max="3000" step="100" value="1500"></label>
+        <output id="scan-interval" for="scan-speed"></output>
+      </fieldset>
+    </form>
+  </dialog>
+
+  <script src="vocabulary.js"></script>
+  <script>
+    // Stato applicativo
+    const state = {
+      clearedPhrase: null,
+      tokens: [],                 // messaggi selezionati dal vocabolario
+      activeFilters: new Set(),
+      scanActive: false,          // scansione automatica attiva?
+      scanSpeed: 1500,            // intervallo scansione in ms
+      scanIndex: -1,              // indice corrente nella griglia
+      scanTimer: null             // handle setInterval
+    };
+
+    /* ============================================================
+       GRIGLIA E FRASE
+       ============================================================ */
+    const gridEl = document.getElementById("grid");
+    const quickGrid = document.getElementById("quick-grid");
+    const sentenceEl = document.getElementById("sentence");
+    const btnUndo = document.getElementById("btn-undo");
+    const btnClear = document.getElementById("btn-clear");
+    const btnRestore = document.getElementById("btn-restore");
+    const btnScan = document.getElementById("btn-scan");
+    const scanSpeedInput = document.getElementById("scan-speed");
+
+    function createIcon(symbol){
+      const icon = document.createElement("span");
+      icon.className = "card-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = symbol;
+      return icon;
+    }
+
+    function makeCard(item, quick){
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = quick ? "tile quick-tile" : "tile";
+      if (quick) button.dataset.message = item.id;
+      const label = document.createElement("span");
+      label.className = "tlabel";
+      label.textContent = item.label;
+      button.append(createIcon(item.icon), label);
+      button.addEventListener("click", () => {
+        if (quick) playReading([item]);
+        else addToken(item);
+      });
+      return button;
+    }
+
+    function buildGrid(){
+      const items = CATALOG.filter(item =>
+        item.cat !== "QUICK" && (!state.activeFilters.size || state.activeFilters.has(item.cat))
+      );
+      gridEl.replaceChildren(...items.map(item => makeCard(item, false)));
+      if (state.scanActive){
+        state.scanIndex = -1;
+        cycleFocus();
+      }
+    }
+
+    function renderSentence(){
+      sentenceEl.replaceChildren();
+      for (const token of state.tokens){
+        const word = document.createElement("button");
+        word.type = "button";
+        word.className = "sentence-word";
+        word.title = "Ascolta " + token.label;
+        word.append(createIcon(token.icon), token.label);
+        word.addEventListener("click", () => playReading([token]));
+        sentenceEl.appendChild(word);
+      }
+      sentenceEl.scrollTop = sentenceEl.scrollHeight;
+      btnUndo.disabled = btnClear.disabled = !state.tokens.length;
+      btnRestore.hidden = !state.clearedPhrase;
+      updateReadControls();
+    }
+
+    function addToken(item){
+      state.tokens.push(item);
+      renderSentence();
+      playReading([item]);
+    }
+
+    function undoLast(){
+      if (!state.tokens.length) return;
+      stopSpeak();
+      state.tokens.pop();
+      const restoreFocus = document.activeElement === btnUndo && !state.tokens.length;
+      renderSentence();
+      if (restoreFocus) focusVocabulary();
+    }
+
+    function clearAll(){
+      if (!state.tokens.length) return;
+      stopSpeak();
+      state.clearedPhrase = state.tokens;
+      state.tokens = [];
+      renderSentence();
+      btnRestore.focus({preventScroll:true});
+    }
+
+    function restorePhrase(){
+      if (!state.clearedPhrase) return;
+      stopSpeak();
+      const currentPhrase = state.tokens;
+      state.tokens = state.clearedPhrase;
+      state.clearedPhrase = currentPhrase.length ? currentPhrase : null;
+      renderSentence();
+      btnRead.focus({preventScroll:true});
+    }
+
+    function focusVocabulary(){
+      const first = quickGrid.querySelector("button");
+      first?.focus({preventScroll:true});
+    }
+
+    /* ============================================================
+       SCANSIONE AUTOMATICA GRIGLIA
+       ============================================================ */
+    function cycleFocus(){
+      const tiles = document.querySelectorAll("#quick-grid .tile, #grid .tile");
+      const previous = document.querySelector(".tile.scanning");
+      const moveFocus = document.activeElement.matches(".tile");
+      previous?.classList.remove("scanning");
+      if (!tiles.length) return;
+      state.scanIndex = (state.scanIndex + 1) % tiles.length;
+      const tile = tiles[state.scanIndex];
+      tile.classList.add("scanning");
+      if (moveFocus) {
+        tile.focus({preventScroll:true});
+        tile.scrollIntoView({block:"nearest"});
+      }
+    }
+
+    function startScan(){
+      stopScan();
+      state.scanActive = true;
+      btnScan.textContent = "Ferma scansione";
+      focusVocabulary();
+      cycleFocus();
+      state.scanTimer = setInterval(cycleFocus, state.scanSpeed);
+    }
+
+    function stopScan(){
+      state.scanActive = false;
+      state.scanIndex = -1;
+      btnScan.textContent = "Avvia scansione";
+      document.querySelector(".tile.scanning")?.classList.remove("scanning");
+      clearInterval(state.scanTimer);
+      state.scanTimer = null;
+    }
+
+    function updateScanSpeed(){
+      state.scanSpeed = Number(scanSpeedInput.value);
+      const seconds = (state.scanSpeed / 1000).toLocaleString("it-IT");
+      document.getElementById("scan-interval").textContent = seconds + " s";
+      localStorage.setItem("senior:scanSpeed", scanSpeedInput.value);
+    }
+
+    btnScan.addEventListener("click", () => {
+      if (state.scanActive) stopScan();
+      else startScan();
+    });
+    scanSpeedInput.addEventListener("input", updateScanSpeed);
+
+    /* ============================================================
+       LETTURA CON AUDIO ITALIANO
+       ============================================================ */
+    const player = new Audio();
+    const speechStatus = document.getElementById("speech-status");
+    let reading = null;
+    const btnRead = document.getElementById("btn-read");
+    const btnPause = document.getElementById("btn-pause");
+    const showPause = document.getElementById("show-pause");
+
+    function updateReadControls(){
+      const readingPhrase = Boolean(reading?.phrase);
+      btnRead.textContent = readingPhrase ? "Ferma" : "Leggi frase";
+      btnRead.disabled = !readingPhrase && !state.tokens.length;
+      if ((!showPause.checked || !readingPhrase) && document.activeElement === btnPause){
+        btnRead.focus({preventScroll:true});
+      }
+      btnPause.hidden = !showPause.checked || !readingPhrase;
+      btnPause.textContent = reading?.paused ? "Riprendi" : "Pausa";
+    }
+
+    function setSpeechStatus(message){
+      speechStatus.textContent = message;
+      speechStatus.hidden = !message;
+    }
+
+    function playCurrentClip(){
+      const activeReading = reading;
+      player.play().catch(error => {
+        if (reading !== activeReading || error.name === "AbortError") return;
+        stopSpeak();
+        setSpeechStatus("Impossibile riprodurre l’audio. Ricarica la pagina e riprova.");
+      });
+    }
+
+    function playNextClip(){
+      const item = reading.tokens[reading.index++];
+      if (!item){
+        stopSpeak();
+        return;
+      }
+      player.src = "audio/" + item.id + ".mp3";
+      playCurrentClip();
+    }
+
+    player.addEventListener("ended", () => {
+      if (reading && !reading.paused && player.ended) playNextClip();
+    });
+
+    function playReading(tokens, phrase = false){
+      stopSpeak();
+      setSpeechStatus("");
+      reading = { tokens: [...tokens], index: 0, phrase, paused:false };
+      updateReadControls();
+      playNextClip();
+    }
+
+    function togglePause(){
+      if (!reading?.phrase) return;
+      reading.paused = !reading.paused;
+      if (reading.paused) player.pause();
+      else if (player.ended) playNextClip();
+      else playCurrentClip();
+      updateReadControls();
+    }
+
+    function stopSpeak(){
+      reading = null;
+      player.pause();
+      updateReadControls();
+    }
+
+    function speakAll(){
+      if (reading?.phrase) stopSpeak();
+      else if (state.tokens.length) playReading(state.tokens, true);
+    }
+
+    btnRead.addEventListener("click", speakAll);
+    btnPause.addEventListener("click", togglePause);
+    btnUndo.addEventListener("click", undoLast);
+    btnClear.addEventListener("click", clearAll);
+    btnRestore.addEventListener("click", restorePhrase);
+
+    // Slider dimensioni e spaziatura
+    const size = document.getElementById("size");
+    const gap  = document.getElementById("gap");
+    function applySizes(){
+      document.documentElement.style.setProperty("--tile-size", size.value+"rem");
+      document.documentElement.style.setProperty("--gap-size", gap.value+"rem");
+      localStorage.setItem("senior:tileSize", size.value);
+      localStorage.setItem("senior:gapSize", gap.value);
+    }
+    size.addEventListener("input", applySizes);
+    gap.addEventListener("input", applySizes);
+
+    const settings = document.getElementById("access-settings");
+    const contrast = document.getElementById("contrast");
+    const enableScan = document.getElementById("enable-scan");
+    const filters = document.getElementById("filters");
+    const categoryOptions = document.getElementById("category-options");
+    const FILTERS = {
+      BAGNO:{ label:"Bagno e igiene", icon:"🚽" },
+      PASTI:{ label:"Cibo e bevande", icon:"🍽️" },
+      VESTITI:{ label:"Vestiti", icon:"👕" },
+      DOLORE:{ label:"Dolore e malessere", icon:"🩹" },
+      RIPOSO:{ label:"Movimento e riposo", icon:"🪑" },
+      PERSONE:{ label:"Persone", icon:"👥" },
+      SCELTE:{ label:"Scelte e risposte", icon:"💬" }
+    };
+
+    function updateFilters(){
+      for (const button of filters.querySelectorAll("button")){
+        const value = button.dataset.filter;
+        const pressed = value === "ALL" ? !state.activeFilters.size : state.activeFilters.has(value);
+        button.setAttribute("aria-pressed", String(pressed));
+      }
+      buildGrid();
+    }
+
+    function toggleFilter(value){
+      if (value === "ALL") state.activeFilters.clear();
+      else if (state.activeFilters.has(value)) state.activeFilters.delete(value);
+      else state.activeFilters.add(value);
+      updateFilters();
+    }
+
+    function renderFilters(){
+      const enabled = [...categoryOptions.querySelectorAll("input:checked")].map(input => input.value);
+      state.activeFilters = new Set([...state.activeFilters].filter(value => enabled.includes(value)));
+      filters.replaceChildren();
+      filters.hidden = !enabled.length;
+      for (const value of ["ALL", ...enabled]){
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.filter = value;
+        const category = value === "ALL" ? { label:"Tutte", icon:"▦" } : FILTERS[value];
+        const icon = document.createElement("span");
+        icon.className = "category-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = category.icon;
+        button.append(icon, category.label);
+        button.addEventListener("click", () => toggleFilter(value));
+        filters.appendChild(button);
+      }
+      localStorage.setItem("senior:visibleCategories", enabled.join(","));
+      updateFilters();
+    }
+
+    function applyContrast(){
+      document.body.classList.toggle("high-contrast", contrast.checked);
+      localStorage.setItem("senior:contrast", contrast.checked ? "1" : "0");
+    }
+
+    document.getElementById("btn-settings").addEventListener("click", () => {
+      stopScan();
+      settings.showModal();
+    });
+    contrast.addEventListener("change", applyContrast);
+    showPause.addEventListener("change", () => {
+      localStorage.setItem("senior:showPause", showPause.checked ? "1" : "0");
+      updateReadControls();
+    });
+    enableScan.addEventListener("change", () => {
+      localStorage.setItem("senior:enableScan", enableScan.checked ? "1" : "0");
+      btnScan.hidden = !enableScan.checked;
+    });
+    categoryOptions.addEventListener("change", renderFilters);
+
+    document.addEventListener("keydown", event => {
+      if (settings.open || event.defaultPrevented) return;
+      if (state.scanActive && event.key === "Escape"){
+        stopScan();
+        btnScan.focus({preventScroll:true});
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z"){
+        event.preventDefault();
+        if (state.tokens.length) undoLast();
+        else restorePhrase();
+      } else if (event.key === "Enter" && !event.target.closest("button, input, a")){
+        event.preventDefault();
+        speakAll();
+      }
+    });
+
+    const savedCategories = (localStorage.getItem("senior:visibleCategories") ?? Object.keys(FILTERS).join(",")).split(",");
+    for (const [value, category] of Object.entries(FILTERS)){
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = value;
+      input.checked = savedCategories.includes(value);
+      label.append(input, category.label);
+      categoryOptions.appendChild(label);
+    }
+
+    size.value = localStorage.getItem("senior:tileSize") || size.value;
+    gap.value = localStorage.getItem("senior:gapSize") || gap.value;
+    scanSpeedInput.value = localStorage.getItem("senior:scanSpeed") || scanSpeedInput.value;
+    contrast.checked = localStorage.getItem("senior:contrast") === "1";
+    showPause.checked = localStorage.getItem("senior:showPause") === "1";
+    enableScan.checked = localStorage.getItem("senior:enableScan") === "1";
+    btnScan.hidden = !enableScan.checked;
+    applySizes();
+    applyContrast();
+    updateScanSpeed();
+    quickGrid.replaceChildren(...CATALOG.filter(item => item.cat === "QUICK").map(item => makeCard(item, true)));
+    renderFilters();
+    renderSentence();
+
+  </script>
+
+  <footer>
+    Typewriter CAA Senior · <a href="../">Versione originale</a>
+    <p class="note">Le richieste rapide vengono pronunciate dal dispositivo.</p>
+  </footer>
+</body>
+</html>
