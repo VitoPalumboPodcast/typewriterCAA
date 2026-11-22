@@ -160,6 +160,19 @@
     .tile .tlabel{ font-size:1.12rem; line-height:1.25; font-weight:600; }
     .card-icon{ font-size:2rem; line-height:1; }
     .sentence-word .card-icon{ font-size:1.25rem; }
+    .card-image, .photo-preview img{
+      width:3rem;
+      height:3rem;
+      object-fit:contain;
+      flex:none;
+    }
+    .card-image.personal-photo, .photo-preview .personal-photo{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:.4rem;
+    }
+    .sentence-word .card-image{ width:2rem; height:2rem; }
+    .categories .card-image{ width:1.5rem; height:1.5rem; }
     .quick-section{ margin-top:1rem; }
     .quick-grid{
       display:grid;
@@ -173,12 +186,27 @@
       border-color:#7f9cb8;
     }
     .quick-tile .card-icon{ font-size:1.65rem; }
+    .quick-tile .card-image{ width:2.65rem; height:2.65rem; }
     .quick-tile .tlabel{ font-size:1rem; }
     .quick-tile[data-message="aiuto"], .quick-tile[data-message="toilette"]{
       background:#fff0da;
       border-color:#aa6d21;
     }
     footer a{ color:#164f81; }
+    .photo-selector select, .photo-selector input{
+      font:inherit;
+      max-width:100%;
+      min-height:44px;
+    }
+    .photo-selector label{ display:block; padding-top:.4rem; }
+    .photo-selector select, .photo-selector input{ display:block; }
+    .photo-preview{
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      flex-wrap:wrap;
+      margin:.5rem 0;
+    }
 
     /* Info */
     .note{
@@ -254,6 +282,20 @@
         <legend>Categorie visibili</legend>
         <div class="category-options" id="category-options"></div>
       </fieldset>
+      <fieldset class="photo-selector">
+        <legend>Foto personali</legend>
+        <p class="note">Le foto restano in questo browser, su questo dispositivo.</p>
+        <label for="photo-card">Casella</label>
+        <select id="photo-card"></select>
+        <div class="photo-preview">
+          <span id="photo-preview" aria-hidden="true"></span>
+          <span id="photo-caption"></span>
+        </div>
+        <label for="photo-file">Scegli una foto</label>
+        <input id="photo-file" type="file" accept="image/*">
+        <button id="photo-reset" type="button">Ripristina immagine originale</button>
+        <p class="note" id="photo-status" role="status"></p>
+      </fieldset>
       <fieldset>
         <legend>Lettura e scansione</legend>
         <label><input id="show-pause" type="checkbox"> Mostra Pausa e Riprendi</label>
@@ -264,7 +306,7 @@
     </form>
   </dialog>
 
-  <script src="vocabulary.js"></script>
+  <script src="vocabulary.js?v=pittogrammi"></script>
   <script>
     // Stato applicativo
     const state = {
@@ -289,11 +331,24 @@
     const btnScan = document.getElementById("btn-scan");
     const scanSpeedInput = document.getElementById("scan-speed");
 
-    function createIcon(symbol){
+    function photoKey(item){
+      return "senior:photo:" + item.id;
+    }
+
+    function createCardImage(item){
+      const photo = item.id && localStorage.getItem(photoKey(item));
+      const source = photo || item.image;
+      if (source){
+        const image = document.createElement("img");
+        image.className = photo ? "card-image personal-photo" : "card-image";
+        image.alt = "";
+        image.src = source;
+        return image;
+      }
       const icon = document.createElement("span");
       icon.className = "card-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = symbol;
+      icon.textContent = item.icon;
       return icon;
     }
 
@@ -305,7 +360,7 @@
       const label = document.createElement("span");
       label.className = "tlabel";
       label.textContent = item.label;
-      button.append(createIcon(item.icon), label);
+      button.append(createCardImage(item), label);
       button.addEventListener("click", () => {
         if (quick) playReading([item]);
         else addToken(item);
@@ -324,6 +379,10 @@
       }
     }
 
+    function renderQuickCards(){
+      quickGrid.replaceChildren(...CATALOG.filter(item => item.cat === "QUICK").map(item => makeCard(item, true)));
+    }
+
     function renderSentence(){
       sentenceEl.replaceChildren();
       for (const token of state.tokens){
@@ -331,7 +390,7 @@
         word.type = "button";
         word.className = "sentence-word";
         word.title = "Ascolta " + token.label;
-        word.append(createIcon(token.icon), token.label);
+        word.append(createCardImage(token), token.label);
         word.addEventListener("click", () => playReading([token]));
         sentenceEl.appendChild(word);
       }
@@ -525,15 +584,94 @@
     gap.addEventListener("input", applySizes);
 
     const settings = document.getElementById("access-settings");
+    const photoCard = document.getElementById("photo-card");
+    const photoFile = document.getElementById("photo-file");
+    const photoReset = document.getElementById("photo-reset");
+    const photoPreview = document.getElementById("photo-preview");
+    const photoCaption = document.getElementById("photo-caption");
+    const photoStatus = document.getElementById("photo-status");
+    const photoCards = CATALOG.filter(item =>
+      ["toilette", "acqua", "maglia", "giacca", "scarpe", "coperta", "famiglia", "telefono", "occhiali"].includes(item.id)
+    );
+    for (const item of photoCards) photoCard.add(new Option(item.label, item.id));
+
+    function selectedPhotoCard(){
+      return photoCards.find(item => item.id === photoCard.value);
+    }
+
+    function refreshPhotoPreview(){
+      const item = selectedPhotoCard();
+      const hasPhoto = Boolean(localStorage.getItem(photoKey(item)));
+      photoPreview.replaceChildren(createCardImage(item));
+      photoCaption.textContent = hasPhoto ? "Foto personale" : "Immagine originale";
+      photoReset.disabled = !hasPhoto;
+    }
+
+    function refreshCardImages(){
+      renderQuickCards();
+      buildGrid();
+      renderSentence();
+      refreshPhotoPreview();
+    }
+
+    async function preparePhoto(file){
+      const bitmap = await createImageBitmap(file);
+      try {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, 400 / Math.max(bitmap.width, bitmap.height));
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        const context = canvas.getContext("2d", { alpha:false });
+        context.fillStyle = "#fff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/jpeg", .83);
+      } finally {
+        bitmap.close();
+      }
+    }
+
+    photoCard.addEventListener("change", () => {
+      photoStatus.textContent = "";
+      refreshPhotoPreview();
+    });
+    photoFile.addEventListener("change", async () => {
+      const file = photoFile.files[0];
+      if (!file) return;
+      const item = selectedPhotoCard();
+      photoCard.disabled = photoFile.disabled = photoReset.disabled = true;
+      photoStatus.textContent = "Salvataggio della foto…";
+      try {
+        const photo = await preparePhoto(file);
+        localStorage.setItem(photoKey(item), photo);
+        refreshCardImages();
+        photoStatus.textContent = "Foto salvata per «" + item.label + "».";
+      } catch (error) {
+        photoStatus.textContent = error.name === "QuotaExceededError"
+          ? "Lo spazio del browser è esaurito. Rimuovi una foto personale e riprova."
+          : "Impossibile leggere la foto. Prova con un’immagine JPEG o PNG.";
+      } finally {
+        photoFile.value = "";
+        photoCard.disabled = photoFile.disabled = false;
+        refreshPhotoPreview();
+      }
+    });
+    photoReset.addEventListener("click", () => {
+      localStorage.removeItem(photoKey(selectedPhotoCard()));
+      refreshCardImages();
+      photoStatus.textContent = "Immagine originale ripristinata.";
+      photoFile.focus();
+    });
+
     const contrast = document.getElementById("contrast");
     const enableScan = document.getElementById("enable-scan");
     const filters = document.getElementById("filters");
     const categoryOptions = document.getElementById("category-options");
     const FILTERS = {
-      BAGNO:{ label:"Bagno e igiene", icon:"🚽" },
+      BAGNO:{ label:"Bagno e igiene", image:"pictograms/toilette.png" },
       PASTI:{ label:"Cibo e bevande", icon:"🍽️" },
       VESTITI:{ label:"Vestiti", icon:"👕" },
-      DOLORE:{ label:"Dolore e malessere", icon:"🩹" },
+      DOLORE:{ label:"Dolore e malessere", image:"pictograms/male.png" },
       RIPOSO:{ label:"Movimento e riposo", icon:"🪑" },
       PERSONE:{ label:"Persone", icon:"👥" },
       SCELTE:{ label:"Scelte e risposte", icon:"💬" }
@@ -565,10 +703,8 @@
         button.type = "button";
         button.dataset.filter = value;
         const category = value === "ALL" ? { label:"Tutte", icon:"▦" } : FILTERS[value];
-        const icon = document.createElement("span");
-        icon.className = "category-icon";
-        icon.setAttribute("aria-hidden", "true");
-        icon.textContent = category.icon;
+        const icon = createCardImage(category);
+        if (!category.image) icon.className = "category-icon";
         button.append(icon, category.label);
         button.addEventListener("click", () => toggleFilter(value));
         filters.appendChild(button);
@@ -584,6 +720,7 @@
 
     document.getElementById("btn-settings").addEventListener("click", () => {
       stopScan();
+      refreshPhotoPreview();
       settings.showModal();
     });
     contrast.addEventListener("change", applyContrast);
@@ -633,7 +770,7 @@
     applySizes();
     applyContrast();
     updateScanSpeed();
-    quickGrid.replaceChildren(...CATALOG.filter(item => item.cat === "QUICK").map(item => makeCard(item, true)));
+    renderQuickCards();
     renderFilters();
     renderSentence();
 

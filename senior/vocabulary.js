@@ -3,43 +3,50 @@ const CATALOG = [
     "cat": "QUICK",
     "id": "si",
     "label": "Sì",
-    "icon": "✅"
+    "icon": "✅",
+    "image": "pictograms/si.png"
   },
   {
     "cat": "QUICK",
     "id": "no",
     "label": "No",
-    "icon": "❌"
+    "icon": "❌",
+    "image": "pictograms/no.png"
   },
   {
     "cat": "QUICK",
     "id": "aiuto",
     "label": "Aiutami, per favore",
-    "icon": "🛎️"
+    "icon": "🛎️",
+    "image": "pictograms/aiuto.png"
   },
   {
     "cat": "QUICK",
     "id": "toilette",
     "label": "Devo andare in bagno",
-    "icon": "🚽"
+    "icon": "🚽",
+    "image": "pictograms/toilette.png"
   },
   {
     "cat": "QUICK",
     "id": "male",
     "label": "Mi fa male",
-    "icon": "🩹"
+    "icon": "🩹",
+    "image": "pictograms/male.png"
   },
   {
     "cat": "QUICK",
     "id": "acqua",
     "label": "Vorrei dell’acqua",
-    "icon": "🥛"
+    "icon": "🥛",
+    "image": "pictograms/acqua.png"
   },
   {
     "cat": "BAGNO",
     "id": "accompagna",
     "label": "Accompagnami in bagno",
-    "icon": "🚽"
+    "icon": "🚽",
+    "image": "pictograms/toilette.png"
   },
   {
     "cat": "BAGNO",
@@ -159,31 +166,36 @@ const CATALOG = [
     "cat": "DOLORE",
     "id": "testa",
     "label": "Mi fa male la testa",
-    "icon": "🤕"
+    "icon": "🤕",
+    "image": "pictograms/testa.png"
   },
   {
     "cat": "DOLORE",
     "id": "gola",
     "label": "Mi fa male la gola",
-    "icon": "🗣️"
+    "icon": "🗣️",
+    "image": "pictograms/gola.png"
   },
   {
     "cat": "DOLORE",
     "id": "pancia",
     "label": "Mi fa male la pancia",
-    "icon": "🩹"
+    "icon": "🩹",
+    "image": "pictograms/pancia.png"
   },
   {
     "cat": "DOLORE",
     "id": "schiena",
     "label": "Mi fa male la schiena",
-    "icon": "🩹"
+    "icon": "🩹",
+    "image": "pictograms/schiena.png"
   },
   {
     "cat": "DOLORE",
     "id": "gambe",
     "label": "Mi fanno male le gambe",
-    "icon": "🦵"
+    "icon": "🦵",
+    "image": "pictograms/gambe.png"
   },
   {
     "cat": "DOLORE",
