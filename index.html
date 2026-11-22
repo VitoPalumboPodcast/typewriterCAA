@@ -19,10 +19,7 @@
       --bg: #ffffff;
       --panel: #f6f6f6;
       --border: #cfcfcf;
-      --accent: #0b6efd;
-      --danger: #c0392b;
-      --ok: #208b3a;
-      --warn: #e67e22;
+      --accent: #075acb;
       --shadow: 0 2px 8px rgba(0,0,0,.08);
     }
 
@@ -36,110 +33,93 @@
       line-height:1.35;
     }
 
-    /* =========================
-       APP BAR / STRUMENTI
-       ========================= */
-    .toolbar{
-      position: sticky; top:0;
-      z-index:10;
-      background:var(--panel);
-      border-bottom:1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    .toolbar-inner{
-      max-width:1100px;
-      margin:auto;
-      display:flex;
-      gap:.5rem;
-      align-items:center;
-      padding:.5rem;
-      flex-wrap:wrap;
-    }
-    .toolbar .group{
-      display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;
-      background:#fff; border:1px solid var(--border); border-radius: var(--radius);
-      padding:.35rem .5rem;
-    }
-    .toolbar label{ font-size:.9rem; opacity:.85; }
-
-    button, .btn{
-      appearance:none; border:1px solid var(--border);
-      background:#fff; color:var(--fg);
-      padding:.45rem .7rem; border-radius:.5rem; cursor:pointer;
-      font-size:1rem; line-height:1;
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--fg);
+      min-width:44px;
+      min-height:44px;
+      padding:.55rem .75rem;
+      border-radius:.55rem;
+      font:inherit;
+      cursor:pointer;
     }
     button:hover{ filter:brightness(.94); }
-    button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-    .btn-primary{ border-color:var(--accent); color:#fff; background:var(--accent); }
-    .btn-ghost{ background:transparent; }
-    .btn-danger{ border-color:var(--danger); color:#fff; background:var(--danger); }
-    .btn-ok{ border-color:var(--ok); color:#fff; background:var(--ok); }
-    .btn-warn{ border-color:var(--warn); color:#fff; background:var(--warn); }
-    .segmented{
-      display:flex; flex-wrap:wrap; max-width:100%;
-      border:1px solid var(--border); border-radius:.5rem; overflow:hidden;
+    button:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
+    button:disabled{ color:#666; cursor:default; }
+    button[aria-pressed="true"], .btn-primary{
+      border-color:var(--accent);
+      color:#fff;
+      background:var(--accent);
     }
-    .segmented button{ border:0; border-right:1px solid var(--border); }
-    .segmented button:last-child{ border-right:0; }
-    .segmented button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+    .btn-primary:disabled{ background:#edf2fa; border-color:#d1dbe9; }
+    input{ accent-color:var(--accent); }
+    [hidden]{ display:none !important; }
 
-    input[type="range"]{ accent-color: var(--accent); }
-
-    /* =========================
-       CONTENUTO
-       ========================= */
-    .container{ max-width:1100px; margin: 1rem auto; padding: 0 1rem; }
-
-    /* Frase composta (token testuali) */
+    .container{ max-width:1100px; margin:auto; padding:0 1rem; }
+    .composer{
+      position:sticky;
+      top:0;
+      z-index:2;
+      padding:.55rem 0 .65rem;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .section-heading, .actions, .categories{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:.45rem;
+    }
+    .section-heading{ justify-content:space-between; }
+    h1, h2{ font-size:1rem; margin:.25rem 0; }
+    .settings-link{ border-color:transparent; color:#444; font-size:.86rem; }
     #sentence{
-      min-height: 3.2rem;
-      padding: .6rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:.4rem;
+      min-height:3.25rem;
+      max-height:clamp(3.25rem, 20dvh, 8rem);
+      overflow:auto;
+      align-content:flex-start;
+      align-items:center;
+      padding:.35rem;
       border:1px solid var(--border);
-      border-radius: var(--radius);
-      background:#fff;
-      font-size:1.4rem;
-      display:flex; flex-wrap:wrap; gap:.35rem;
+      border-radius:var(--radius);
+      background:var(--panel);
     }
-    .token{
-      padding:.1rem .4rem;
-      border:2px solid #999;
-      border-radius:.4rem;
-      background:#fff;
-      box-shadow: var(--shadow);
-      align-self:center;
-    }
-    .token[data-cat="S"]{ border-color:#e74c3c; }
-    .token[data-cat="V"]{ border-color:#2980b9; }
-    .token[data-cat="O"]{ border-color:#27ae60; }
-    .token[data-cat="X"]{ border-color:#8e44ad; }
-
-    /* Output simbolico (simbolo + immagine) */
-    #output{
-      margin-top:.6rem;
+    .sentence-word{ display:flex; align-items:center; gap:.35rem; padding:.25rem .5rem; }
+    .sentence-word img{ width:2rem; height:2rem; object-fit:cover; border-radius:.3rem; }
+    .actions{ margin-top:.5rem; }
+    .actions button{ font-size:.9rem; }
+    #btn-read{ min-width:6.8rem; font-weight:650; }
+    #btn-clear{ margin-inline-start:auto; }
+    .vocabulary{ margin-top:1rem; }
+    .categories{ margin:.5rem 0 .75rem; }
+    .tile{ scroll-margin-block-start:min(15rem, 55dvh); }
+    .tile.scanning{ outline:3px solid var(--accent); outline-offset:2px; }
+    .settings{
+      width:min(32rem, calc(100% - 2rem));
+      max-height:calc(100% - 2rem);
       border:1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius:var(--radius);
+      padding:1rem;
+      color:var(--fg);
       background:#fff;
-      padding:.4rem;
-      display:flex; flex-wrap:wrap; gap:.4rem;
-      min-height:6rem;
     }
-    .chip{
-      display:flex; align-items:center; gap:.35rem;
-      border:1px dashed #bbb; border-radius:.6rem;
-      background:#fafafa; padding:.35rem .5rem;
+    .settings::backdrop{ background:rgb(0 0 0 / .38); }
+    .settings fieldset{
+      margin:.75rem 0 0;
+      padding:.55rem .7rem;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
     }
-    .chip img{
-      display:block; width:3.2rem; height:3.2rem; object-fit:cover; border-radius:.4rem;
-      border:1px solid #ddd; background:#fff;
-    }
-    .chip .label{ font-size:1.2rem; }
+    .settings label{ display:flex; align-items:center; gap:.45rem; min-height:44px; }
+    .settings input[type="range"]{ flex:1; min-width:0; }
+    .category-options{ display:flex; flex-wrap:wrap; column-gap:1rem; }
+    @media (max-height:450px){ .composer{ position:static; } }
 
-    /* Griglia categorie / pulsanti */
-    .section{ margin-top:1rem; }
-    .section h2{
-      font-size:1rem; font-weight:600; margin:.2rem 0 .5rem;
-      color:#555; letter-spacing:.02em; text-transform:uppercase;
-    }
     .grid{
       display:grid;
       grid-template-columns: repeat(auto-fill, minmax(var(--tile-size), 1fr));
@@ -195,83 +175,58 @@
 </head>
 <body>
 
-  <!-- =========================
-       BARRA STRUMENTI ACCESSO
-       ========================= -->
-  <div class="toolbar" role="region" aria-label="Strumenti">
-    <div class="toolbar-inner">
-
-      <!-- Lettura -->
-      <div class="group" role="group" aria-label="Lettura">
-        <button class="btn-primary" id="btn-read" title="Leggi tutta la frase (Invio)">Leggi</button>
-        <button class="btn-warn" id="btn-pause" title="Metti in pausa la lettura (P)">Pausa</button>
-        <button class="btn-ok" id="btn-resume" title="Riprendi la lettura (R)">Riprendi</button>
-        <button class="btn-danger" id="btn-stop" title="Ferma la lettura (S)">Stop</button>
+  <main class="container">
+    <section class="composer" aria-labelledby="sentence-title">
+      <div class="section-heading">
+        <h1 id="sentence-title">Frase</h1>
+        <button class="settings-link" id="btn-settings" type="button" aria-haspopup="dialog">Impostazioni di accesso</button>
       </div>
-
-      <!-- Modifica frase -->
-        <div class="group" role="group" aria-label="Modifica frase">
-          <button id="btn-undo" title="Annulla ultimo token (Ctrl+Z)">Annulla</button>
-          <button id="btn-clear" class="btn-ghost" title="Cancella frase">Cancella</button>
-          <button id="btn-read-token" class="btn-ghost" title="Leggi token selezionato">Leggi token</button>
-        </div>
-
-        <!-- Scansione automatica -->
-        <div class="group" role="group" aria-label="Scansione">
-          <button id="btn-scan-start" class="btn-ghost" title="Avvia scansione automatica">Avvia</button>
-          <button id="btn-scan-stop" class="btn-ghost" title="Ferma scansione">Ferma</button>
-          <label for="scan-speed">Velocità</label>
-          <input id="scan-speed" type="range" min="500" max="3000" step="100" value="1500" />
-        </div>
-
-        <!-- Aspetto / Accessibilità -->
-        <div class="group" role="group" aria-label="Aspetto">
-          <label for="size">Larghezza</label>
-          <input id="size" type="range" min="4.5" max="8.5" step=".5" value="5.5" />
-          <label for="gap">Spaziatura</label>
-        <input id="gap" type="range" min="0.2" max="1.2" step=".1" value="0.5" />
-        <button id="btn-contrast" class="btn-ghost" title="Alto contrasto (C)">Contrasto</button>
+      <div id="sentence" aria-live="polite" aria-label="Frase composta"></div>
+      <div class="actions" role="group" aria-label="Azioni sulla frase">
+        <button class="btn-primary" id="btn-read" type="button">Leggi frase</button>
+        <button id="btn-undo" type="button">Togli ultima parola</button>
+        <button id="btn-clear" type="button">Nuova frase</button>
+        <button id="btn-restore" type="button" hidden>Recupera frase</button>
+        <button id="btn-pause" type="button" hidden>Pausa</button>
       </div>
-
-      <!-- Filtri categorie -->
-      <div class="group" role="group" aria-label="Categorie">
-        <div class="segmented" id="filters" role="tablist" aria-label="Filtra categoria">
-          <button data-filter="ALL" aria-pressed="true">Tutte</button>
-          <button data-filter="S" aria-pressed="false">Soggetti</button>
-          <button data-filter="V" aria-pressed="false">Verbi</button>
-          <button data-filter="O" aria-pressed="false">Oggetti</button>
-          <button data-filter="X" aria-pressed="false">Sociali/Altro</button>
-          <button data-filter="P" aria-pressed="false">Persone</button>
-          <button data-filter="A" aria-pressed="false">Azioni</button>
-          <button data-filter="L" aria-pressed="false">Luoghi</button>
-          <button data-filter="T" aria-pressed="false">Tempo</button>
-          <button data-filter="E" aria-pressed="false">Emozioni</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- =========================
-         FRASE + OUTPUT SIMBOLICO
-         ========================= -->
-    <div class="section" aria-live="polite" aria-label="Frase composta">
-      <h2>Frase</h2>
-      <div id="sentence"></div>
       <p id="speech-status" class="note" role="status" hidden></p>
-      <div id="output" class="mt"></div>
-      <p class="note">Suggerimento: clicca le pedine in basso. <kbd>Invio</kbd> legge tutta la frase. <kbd>Ctrl</kbd>+<kbd>Z</kbd> annulla l’ultimo token. Usa <em>Filtra categoria</em> per ridurre il carico visivo.</p>
-    </div>
+    </section>
 
-    <!-- =========================
-         PALETTE PULSANTI
-         ========================= -->
-    <div class="section">
-      <h2>Selettore</h2>
-      <div id="grid" class="grid" role="grid" aria-label="Pulsanti comunicativi"></div>
-    </div>
-  </div>
+    <section class="vocabulary" aria-labelledby="words-title">
+      <div class="section-heading">
+        <h2 id="words-title">Parole</h2>
+        <button id="btn-scan" type="button" hidden>Avvia scansione</button>
+      </div>
+      <div class="categories" id="filters" role="group" aria-label="Categorie"></div>
+      <div id="grid" class="grid" role="group" aria-label="Caselle di comunicazione"></div>
+    </section>
+  </main>
+
+  <dialog class="settings" id="access-settings" aria-labelledby="settings-title">
+    <form method="dialog">
+      <div class="section-heading">
+        <h2 id="settings-title">Impostazioni di accesso</h2>
+        <button type="submit" autofocus>Chiudi</button>
+      </div>
+      <fieldset>
+        <legend>Aspetto</legend>
+        <label>Dimensione caselle <input id="size" type="range" min="4.5" max="8.5" step=".5" value="5.5"></label>
+        <label>Spaziatura <input id="gap" type="range" min="0.2" max="1.2" step=".1" value="0.5"></label>
+        <label><input id="contrast" type="checkbox"> Alto contrasto</label>
+      </fieldset>
+      <fieldset>
+        <legend>Categorie visibili</legend>
+        <div class="category-options" id="category-options"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Lettura e scansione</legend>
+        <label><input id="show-pause" type="checkbox"> Mostra Pausa e Riprendi</label>
+        <label><input id="enable-scan" type="checkbox"> Mostra il comando di scansione</label>
+        <label>Intervallo di scansione <input id="scan-speed" type="range" min="500" max="3000" step="100" value="1500"></label>
+        <output id="scan-interval" for="scan-speed"></output>
+      </fieldset>
+    </form>
+  </dialog>
 
   <script>
     /* ============================================================
@@ -354,6 +309,7 @@
 
     // Stato applicativo
     const state = {
+      clearedPhrase: null,
       tokens: [],                 // lista token {cat, label, audio, image}
       filter: "ALL",              // filtro categoria corrente
       scanActive: false,          // scansione automatica attiva?
@@ -363,27 +319,25 @@
     };
 
     /* ============================================================
-       COSTRUZIONE UI: GRIGLIA, TOKEN, CHIP
+       GRIGLIA E FRASE
        ============================================================ */
     const gridEl     = document.getElementById("grid");
     const sentenceEl = document.getElementById("sentence");
-    const outputEl   = document.getElementById("output");
-    // controlli scansione
-    const btnScanStart = document.getElementById("btn-scan-start");
-    const btnScanStop  = document.getElementById("btn-scan-stop");
+    const btnUndo = document.getElementById("btn-undo");
+    const btnClear = document.getElementById("btn-clear");
+    const btnRestore = document.getElementById("btn-restore");
+    const btnScan = document.getElementById("btn-scan");
     const scanSpeedInput = document.getElementById("scan-speed");
 
     function buildGrid(){
       gridEl.innerHTML = "";
-      const items = CATALOG.filter(it => state.filter==="ALL" ? true : it.cat===state.filter);
+      const items = CATALOG.filter(it => state.filter === "ALL" || FILTERS[state.filter].cats.includes(it.cat));
       for (const it of items){
         const b = document.createElement("button");
         b.className = `tile ${it.cat}`;
         b.type = "button";
-        b.setAttribute("role","gridcell");
         b.setAttribute("aria-label", it.label);
         b.title = it.label;
-        b.tabIndex = 0;
 
         // immagine (se esiste)
         if (it.image){
@@ -402,7 +356,6 @@
         b.appendChild(lab);
 
         b.addEventListener("click", () => addToken(it));
-        b.addEventListener("keydown", (e)=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); b.click(); } });
 
         gridEl.appendChild(b);
       }
@@ -413,101 +366,116 @@
     }
 
     function renderSentence(){
-      sentenceEl.innerHTML = "";
-      state.tokens.forEach(t => {
-        const s = document.createElement("button");
-        s.type = "button";
-        s.className = "token";
-        s.dataset.cat = t.cat;
-        s.style.borderColor = BORDER_BY_CAT[t.cat] || "#999";
-        s.textContent = t.label;
-        s.title = "Ascolta " + t.label;
-        s.addEventListener("click", () => playReading([t]));
-        sentenceEl.appendChild(s);
-      });
-    }
-
-    function renderOutput(){
-      outputEl.innerHTML = "";
-      state.tokens.forEach(t => {
-        const box = document.createElement("button");
-        box.type = "button";
-        box.title = "Ascolta " + t.label;
-        box.addEventListener("click", () => playReading([t]));
-        box.className = "chip";
-        box.style.borderColor = (BORDER_BY_CAT[t.cat] || "#bbb");
-
-        if (t.image){
-          const img = document.createElement("img");
-          img.alt = t.label;
-          img.src = toAbsolute(t.image);
-          img.onerror = () => { img.remove(); }; // se fallisce, mostra solo etichetta
-          box.appendChild(img);
+      sentenceEl.replaceChildren();
+      for (const token of state.tokens){
+        const word = document.createElement("button");
+        word.type = "button";
+        word.className = "sentence-word";
+        word.style.borderColor = BORDER_BY_CAT[token.cat] || "#999";
+        word.title = "Ascolta " + token.label;
+        if (token.image){
+          const image = document.createElement("img");
+          image.alt = "";
+          image.src = toAbsolute(token.image);
+          image.onerror = () => image.remove();
+          word.appendChild(image);
         }
-
-        const lab = document.createElement("div");
-        lab.className = "label";
-        lab.textContent = t.label;
-        box.appendChild(lab);
-
-        outputEl.appendChild(box);
-      });
+        word.append(token.label);
+        word.addEventListener("click", () => playReading([token]));
+        sentenceEl.appendChild(word);
+      }
+      sentenceEl.scrollTop = sentenceEl.scrollHeight;
+      btnUndo.disabled = btnClear.disabled = !state.tokens.length;
+      btnRestore.hidden = !state.clearedPhrase;
+      updateReadControls();
     }
 
     function addToken(item){
       state.tokens.push(item);
       renderSentence();
-      renderOutput();
       playReading([item]);
     }
 
     function undoLast(){
       if (!state.tokens.length) return;
+      stopSpeak();
       state.tokens.pop();
-      renderSentence(); renderOutput();
+      const restoreFocus = document.activeElement === btnUndo && !state.tokens.length;
+      renderSentence();
+      if (restoreFocus) focusVocabulary();
     }
 
     function clearAll(){
+      if (!state.tokens.length) return;
+      stopSpeak();
+      state.clearedPhrase = state.tokens;
       state.tokens = [];
-      renderSentence(); renderOutput();
+      renderSentence();
+      btnRestore.focus({preventScroll:true});
+    }
+
+    function restorePhrase(){
+      if (!state.clearedPhrase) return;
+      stopSpeak();
+      const currentPhrase = state.tokens;
+      state.tokens = state.clearedPhrase;
+      state.clearedPhrase = currentPhrase.length ? currentPhrase : null;
+      renderSentence();
+      btnRead.focus({preventScroll:true});
+    }
+
+    function focusVocabulary(){
+      const first = gridEl.querySelector("button");
+      first?.focus({preventScroll:true});
     }
 
     /* ============================================================
        SCANSIONE AUTOMATICA GRIGLIA
        ============================================================ */
     function cycleFocus(){
-      const btns = gridEl.querySelectorAll("button");
-      if (!btns.length) return;
-      state.scanIndex = (state.scanIndex + 1) % btns.length;
-      btns[state.scanIndex].focus();
+      const tiles = gridEl.querySelectorAll("button");
+      const previous = gridEl.querySelector(".scanning");
+      const moveFocus = gridEl.contains(document.activeElement);
+      previous?.classList.remove("scanning");
+      if (!tiles.length) return;
+      state.scanIndex = (state.scanIndex + 1) % tiles.length;
+      const tile = tiles[state.scanIndex];
+      tile.classList.add("scanning");
+      if (moveFocus) {
+        tile.focus({preventScroll:true});
+        tile.scrollIntoView({block:"nearest"});
+      }
     }
 
     function startScan(){
       stopScan();
       state.scanActive = true;
-      state.scanIndex = -1;
+      btnScan.textContent = "Ferma scansione";
+      focusVocabulary();
       cycleFocus();
       state.scanTimer = setInterval(cycleFocus, state.scanSpeed);
     }
 
     function stopScan(){
       state.scanActive = false;
-      if (state.scanTimer){
-        clearInterval(state.scanTimer);
-        state.scanTimer = null;
-      }
+      state.scanIndex = -1;
+      btnScan.textContent = "Avvia scansione";
+      gridEl.querySelector(".scanning")?.classList.remove("scanning");
+      clearInterval(state.scanTimer);
+      state.scanTimer = null;
     }
 
     function updateScanSpeed(){
-      state.scanSpeed = parseInt(scanSpeedInput.value, 10);
-      localStorage.setItem("scanSpeed", state.scanSpeed);
-      if (state.scanActive){
-        startScan();
-      }
+      state.scanSpeed = Number(scanSpeedInput.value);
+      const seconds = (state.scanSpeed / 1000).toLocaleString("it-IT");
+      document.getElementById("scan-interval").textContent = seconds + " s";
+      localStorage.setItem("scanSpeed", scanSpeedInput.value);
     }
 
-    btnScanStart.addEventListener("click", startScan);
-    btnScanStop.addEventListener("click", stopScan);
+    btnScan.addEventListener("click", () => {
+      if (state.scanActive) stopScan();
+      else startScan();
+    });
     scanSpeedInput.addEventListener("input", updateScanSpeed);
 
     /* ============================================================
@@ -516,6 +484,20 @@
     const player = new Audio();
     const speechStatus = document.getElementById("speech-status");
     let reading = null;
+    const btnRead = document.getElementById("btn-read");
+    const btnPause = document.getElementById("btn-pause");
+    const showPause = document.getElementById("show-pause");
+
+    function updateReadControls(){
+      const readingPhrase = Boolean(reading?.phrase);
+      btnRead.textContent = readingPhrase ? "Ferma" : "Leggi frase";
+      btnRead.disabled = !readingPhrase && !state.tokens.length;
+      if ((!showPause.checked || !readingPhrase) && document.activeElement === btnPause){
+        btnRead.focus({preventScroll:true});
+      }
+      btnPause.hidden = !showPause.checked || !readingPhrase;
+      btnPause.textContent = reading?.paused ? "Riprendi" : "Pausa";
+    }
 
     function setSpeechStatus(message){
       speechStatus.textContent = message;
@@ -534,7 +516,7 @@
     function playNextClip(){
       const item = reading.tokens[reading.index++];
       if (!item){
-        reading = null;
+        stopSpeak();
         return;
       }
       player.src = item.audio;
@@ -542,52 +524,42 @@
     }
 
     player.addEventListener("ended", () => {
-      if (reading && player.ended) playNextClip();
+      if (reading && !reading.paused && player.ended) playNextClip();
     });
 
-    function playReading(tokens){
+    function playReading(tokens, phrase = false){
       stopSpeak();
       setSpeechStatus("");
-      reading = { tokens: [...tokens], index: 0 };
+      reading = { tokens: [...tokens], index: 0, phrase, paused:false };
+      updateReadControls();
       playNextClip();
     }
 
-    function pauseSpeak(){ player.pause(); }
-    function resumeSpeak(){ if (reading && player.paused) playCurrentClip(); }
+    function togglePause(){
+      if (!reading?.phrase) return;
+      reading.paused = !reading.paused;
+      if (reading.paused) player.pause();
+      else if (player.ended) playNextClip();
+      else playCurrentClip();
+      updateReadControls();
+    }
+
     function stopSpeak(){
       reading = null;
       player.pause();
+      updateReadControls();
     }
 
     function speakAll(){
-      if (!state.tokens.length){
-        setSpeechStatus("Aggiungi almeno una pedina alla frase per ascoltarla.");
-        return;
-      }
-      playReading(state.tokens);
+      if (reading?.phrase) stopSpeak();
+      else if (state.tokens.length) playReading(state.tokens, true);
     }
 
-    /* ============================================================
-       CONTROLLI TOOLBAR
-       ============================================================ */
-    // Lettura
-    document.getElementById("btn-read").addEventListener("click", speakAll);
-    document.getElementById("btn-pause").addEventListener("click", pauseSpeak);
-    document.getElementById("btn-resume").addEventListener("click", resumeSpeak);
-    document.getElementById("btn-stop").addEventListener("click", stopSpeak);
-
-    // Auto lettura on/off
-    // Undo / Clear / Leggi token selezionato
-    document.getElementById("btn-undo").addEventListener("click", undoLast);
-    document.getElementById("btn-clear").addEventListener("click", clearAll);
-    let selectedToken = null;
-    sentenceEl.addEventListener("focusin", event => {
-      selectedToken = event.target.closest(".token");
-    });
-    document.getElementById("btn-read-token").addEventListener("click", () => {
-      if (selectedToken?.isConnected) selectedToken.click();
-      else setSpeechStatus("Seleziona una parola nella frase per ascoltarla.");
-    });
+    btnRead.addEventListener("click", speakAll);
+    btnPause.addEventListener("click", togglePause);
+    btnUndo.addEventListener("click", undoLast);
+    btnClear.addEventListener("click", clearAll);
+    btnRestore.addEventListener("click", restorePhrase);
 
     // Slider dimensioni e spaziatura
     const size = document.getElementById("size");
@@ -601,92 +573,103 @@
     size.addEventListener("input", applySizes);
     gap.addEventListener("input", applySizes);
 
-    // Alto contrasto
-    const btnContrast = document.getElementById("btn-contrast");
-    function toggleContrast(){
-      document.body.classList.toggle("high-contrast");
-      localStorage.setItem("contrast", document.body.classList.contains("high-contrast") ? "1":"0");
-    }
-    btnContrast.addEventListener("click", toggleContrast);
-
-    // Filtro categorie (segment control)
+    const settings = document.getElementById("access-settings");
+    const contrast = document.getElementById("contrast");
+    const enableScan = document.getElementById("enable-scan");
     const filters = document.getElementById("filters");
-    filters.addEventListener("click", (e)=>{
-      const btn = e.target.closest("button[data-filter]");
-      if (!btn) return;
-      state.filter = btn.dataset.filter;
-      for (const b of filters.querySelectorAll("button[data-filter]")){
-        b.setAttribute("aria-pressed", b===btn ? "true" : "false");
+    const categoryOptions = document.getElementById("category-options");
+    const FILTERS = {
+      FOOD:{ label:"Cibo", cats:["O"] },
+      PEOPLE:{ label:"Persone", cats:["S","P"] },
+      ACTIONS:{ label:"Azioni", cats:["V","A"] },
+      SOCIAL:{ label:"Conversazione", cats:["X"] },
+      PLACES:{ label:"Luoghi", cats:["L"] },
+      TIME:{ label:"Tempo", cats:["T"] },
+      FEELINGS:{ label:"Emozioni", cats:["E"] }
+    };
+
+    function selectFilter(value){
+      state.filter = value;
+      for (const button of filters.querySelectorAll("button")){
+        button.setAttribute("aria-pressed", String(button.dataset.filter === value));
       }
       buildGrid();
+    }
+
+    function renderFilters(){
+      const enabled = [...categoryOptions.querySelectorAll("input:checked")].map(input => input.value);
+      filters.replaceChildren();
+      filters.hidden = !enabled.length;
+      for (const value of ["ALL", ...enabled]){
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.filter = value;
+        button.textContent = value === "ALL" ? "Tutte" : FILTERS[value].label;
+        button.addEventListener("click", () => selectFilter(value));
+        filters.appendChild(button);
+      }
+      localStorage.setItem("visibleCategories", enabled.join(","));
+      selectFilter(enabled.includes(state.filter) ? state.filter : "ALL");
+    }
+
+    function applyContrast(){
+      document.body.classList.toggle("high-contrast", contrast.checked);
+      localStorage.setItem("contrast", contrast.checked ? "1" : "0");
+    }
+
+    document.getElementById("btn-settings").addEventListener("click", () => {
+      stopScan();
+      settings.showModal();
+    });
+    contrast.addEventListener("change", applyContrast);
+    showPause.addEventListener("change", () => {
+      localStorage.setItem("showPause", showPause.checked ? "1" : "0");
+      updateReadControls();
+    });
+    enableScan.addEventListener("change", () => {
+      localStorage.setItem("enableScan", enableScan.checked ? "1" : "0");
+      btnScan.hidden = !enableScan.checked;
+    });
+    categoryOptions.addEventListener("change", renderFilters);
+
+    document.addEventListener("keydown", event => {
+      if (settings.open || event.defaultPrevented) return;
+      if (state.scanActive && event.key === "Escape"){
+        stopScan();
+        btnScan.focus({preventScroll:true});
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z"){
+        event.preventDefault();
+        if (state.tokens.length) undoLast();
+        else restorePhrase();
+      } else if (event.key === "Enter" && !event.target.closest("button, input, a")){
+        event.preventDefault();
+        speakAll();
+      }
     });
 
-    /* ============================================================
-       TASTI RAPIDI
-       ============================================================ */
-    document.addEventListener("keydown", (e)=>{
-      if (state.scanActive){
-        e.preventDefault();
-        const focused = document.activeElement;
-        if (focused && focused.classList.contains("tile")){
-          focused.click();
-        }
-        return;
-      }
-      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    const savedCategories = (localStorage.getItem("visibleCategories") ?? "FOOD,PEOPLE").split(",");
+    for (const [value, category] of Object.entries(FILTERS)){
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = value;
+      input.checked = savedCategories.includes(value);
+      label.append(input, category.label);
+      categoryOptions.appendChild(label);
+    }
 
-      if (e.defaultPrevented || (e.key === "Enter" && e.target.closest("button"))) return;
-
-      if (e.key === "Enter"){
-        e.preventDefault(); speakAll();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==="z"){
-        e.preventDefault(); undoLast();
-      } else if (e.key.toLowerCase()==="c"){ // contrasto
-        toggleContrast();
-      } else if (e.key.toLowerCase()==="p"){ // pausa
-        pauseSpeak();
-      } else if (e.key.toLowerCase()==="r"){ // riprendi
-        resumeSpeak();
-      } else if (e.key.toLowerCase()==="s"){ // stop
-        stopSpeak();
-      }
-    });
-
-    document.addEventListener("click", (e)=>{
-      if (!state.scanActive) return;
-      if (e.target.closest('.toolbar') || e.target.closest('#grid')) return;
-      e.preventDefault();
-      const focused = document.activeElement;
-      if (focused && focused.classList.contains('tile')){
-        focused.click();
-      }
-    });
-
-    /* ============================================================
-       PERSISTENZA PREFERENZE
-       ============================================================ */
-      (function restorePrefs(){
-        const ts = localStorage.getItem("tileSize");
-        const gs = localStorage.getItem("gapSize");
-        const hc = localStorage.getItem("contrast");
-        const ss = localStorage.getItem("scanSpeed");
-
-        if (ts){ size.value = ts; }
-        if (gs){ gap.value  = gs; }
-        applySizes();
-        if (hc==="1") document.body.classList.add("high-contrast");
-        if (ss){
-          scanSpeedInput.value = ss;
-          updateScanSpeed();
-        }
-      })();
-
-    /* ============================================================
-       AVVIO
-       ============================================================ */
-    buildGrid();
+    size.value = localStorage.getItem("tileSize") || size.value;
+    gap.value = localStorage.getItem("gapSize") || gap.value;
+    scanSpeedInput.value = localStorage.getItem("scanSpeed") || scanSpeedInput.value;
+    contrast.checked = localStorage.getItem("contrast") === "1";
+    showPause.checked = localStorage.getItem("showPause") === "1";
+    enableScan.checked = localStorage.getItem("enableScan") === "1";
+    btnScan.hidden = !enableScan.checked;
+    applySizes();
+    applyContrast();
+    updateScanSpeed();
+    renderFilters();
     renderSentence();
-    renderOutput();
 
   </script>
 
@@ -701,7 +684,7 @@
        - Immagini caricate da https://www.vitopalumbo.it/INCLUSIONE/
        - Nessun backend. Tutto client-side.
        - Accessibilità: pulsanti <button>, aria-pressed, focus visibile, tastiera.
-       - Preferenze utente (dimensioni e contrasto) persistite in localStorage.
+       - Impostazioni di accesso salvate in localStorage.
        - Audio italiano incluso e controlli pausa/riprendi/stop.
        - Filtro categorie per ridurre carico visivo.
        ========================= -->
