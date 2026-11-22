@@ -116,6 +116,139 @@ const CATALOG = [
   },
   {
     "cat": "PASTI",
+    "id": "pastina",
+    "label": "Vorrei della pastina in brodo",
+    "icon": "🥣",
+    "image": "food/pastina.webp"
+  },
+  {
+    "cat": "PASTI",
+    "id": "carne",
+    "label": "Vorrei della carne bollita",
+    "icon": "🍖",
+    "image": "food/carne.webp"
+  },
+  {
+    "cat": "PASTI",
+    "id": "pure",
+    "label": "Vorrei del purè di patate",
+    "icon": "🥔",
+    "image": "food/pure.webp"
+  },
+  {
+    "cat": "PASTI",
+    "id": "risotto",
+    "label": "Vorrei del risotto",
+    "icon": "🍚",
+    "image": "food/risotto.webp"
+  },
+  {
+    "cat": "PASTI",
+    "id": "frittata",
+    "label": "Vorrei della frittata",
+    "icon": "🍳",
+    "image": "food/frittata.webp"
+  },
+  {
+    "cat": "PASTI",
+    "id": "panino",
+    "label": "Vorrei un panino",
+    "icon": "🥪",
+    "image": "food/panino.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "pollo",
+    "label": "Vorrei del pollo",
+    "icon": "🍗",
+    "image": "food/pollo.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "pizza",
+    "label": "Vorrei della pizza",
+    "icon": "🍕",
+    "image": "food/pizza.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "insalata",
+    "label": "Vorrei dell’insalata",
+    "icon": "🥗",
+    "image": "food/insalata.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "melanzana",
+    "label": "Vorrei della melanzana",
+    "icon": "🍆",
+    "image": "food/melanzana.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "arancia",
+    "label": "Vorrei un’arancia",
+    "icon": "🍊",
+    "image": "food/arancia.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "banana",
+    "label": "Vorrei una banana",
+    "icon": "🍌",
+    "image": "food/banana.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "mela",
+    "label": "Vorrei una mela",
+    "icon": "🍎",
+    "image": "food/mela.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "carota",
+    "label": "Vorrei una carota",
+    "icon": "🥕",
+    "image": "food/carota.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "caramella",
+    "label": "Vorrei una caramella",
+    "icon": "🍬",
+    "image": "food/caramella.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "spaghetti",
+    "label": "Vorrei degli spaghetti",
+    "icon": "🍝",
+    "image": "food/spaghetti.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "cioccolatino",
+    "label": "Vorrei un cioccolatino",
+    "icon": "🍫",
+    "image": "food/cioccolatino.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "cappuccino",
+    "label": "Vorrei un cappuccino",
+    "icon": "☕",
+    "image": "food/cappuccino.jpg"
+  },
+  {
+    "cat": "PASTI",
+    "id": "ciliegie",
+    "label": "Vorrei delle ciliegie",
+    "icon": "🍒",
+    "image": "food/ciliegie.jpg"
+  },
+  {
+    "cat": "PASTI",
     "id": "poco",
     "label": "Ne vorrei ancora",
     "icon": "➕"

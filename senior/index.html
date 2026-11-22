@@ -173,6 +173,11 @@
     }
     .sentence-word .card-image{ width:2rem; height:2rem; }
     .categories .card-image{ width:1.5rem; height:1.5rem; }
+    .tile .food-photo{
+      width:min(100%, 5.5rem);
+      height:4.5rem;
+      border-radius:.45rem;
+    }
     .quick-section{ margin-top:1rem; }
     .quick-grid{
       display:grid;
@@ -306,7 +311,7 @@
     </form>
   </dialog>
 
-  <script src="vocabulary.js?v=pittogrammi"></script>
+  <script src="vocabulary.js?v=alimenti"></script>
   <script>
     // Stato applicativo
     const state = {
@@ -342,6 +347,7 @@
         const image = document.createElement("img");
         image.className = photo ? "card-image personal-photo" : "card-image";
         image.alt = "";
+        if (item.cat === "PASTI") image.classList.add("food-photo");
         image.src = source;
         return image;
       }
