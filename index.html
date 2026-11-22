@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="only light" />
   <title>Macchina da scrivere simbolica – v2 accessibile</title>
 
   <style>
@@ -10,6 +11,7 @@
        VARIABILI E BASE LAYOUT
        ========================= */
     :root{
+      color-scheme: only light;
       --tile-size: 5.5rem;      /* dimensione base dei pulsanti/pedine */
       --gap-size: 0.5rem;       /* spaziatura tra pulsanti/pedine */
       --radius: .6rem;
@@ -25,7 +27,7 @@
     }
 
     *{ box-sizing: border-box; }
-    html, body{ height:100%; }
+    html, body{ height:100%; background:#fff; }
     body{
       margin:0;
       color:var(--fg);
@@ -66,7 +68,7 @@
       padding:.45rem .7rem; border-radius:.5rem; cursor:pointer;
       font-size:1rem; line-height:1;
     }
-    button:hover{ background:#fafafa; }
+    button:hover{ filter:brightness(.94); }
     button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
     .btn-primary{ border-color:var(--accent); color:#fff; background:var(--accent); }
     .btn-ghost{ background:transparent; }
@@ -74,7 +76,8 @@
     .btn-ok{ border-color:var(--ok); color:#fff; background:var(--ok); }
     .btn-warn{ border-color:var(--warn); color:#fff; background:var(--warn); }
     .segmented{
-      display:flex; border:1px solid var(--border); border-radius:.5rem; overflow:hidden;
+      display:flex; flex-wrap:wrap; max-width:100%;
+      border:1px solid var(--border); border-radius:.5rem; overflow:hidden;
     }
     .segmented button{ border:0; border-right:1px solid var(--border); }
     .segmented button:last-child{ border-right:0; }
@@ -184,13 +187,10 @@
 
     /* Alto contrasto */
     .high-contrast{
-      --bg:#000; --fg:#fff; --panel:#000; --border:#888; --shadow:none;
-      --accent:#ffd400;
+      --fg:#000; --panel:#fff; --border:#555; --shadow:none;
+      --accent:#0349aa;
     }
-    .high-contrast button{ border-color:#888; }
-    .high-contrast .tile{ background:#000; }
-    .high-contrast .tile img{ border-color:#555; }
-    .high-contrast #sentence, .high-contrast #output{ background:#000; }
+    .high-contrast .note, .high-contrast h2{ color:#111; }
   </style>
 </head>
 <body>
@@ -201,16 +201,12 @@
   <div class="toolbar" role="region" aria-label="Strumenti">
     <div class="toolbar-inner">
 
-      <!-- Lettura / TTS -->
+      <!-- Lettura -->
       <div class="group" role="group" aria-label="Lettura">
         <button class="btn-primary" id="btn-read" title="Leggi tutta la frase (Invio)">Leggi</button>
         <button class="btn-warn" id="btn-pause" title="Metti in pausa la lettura (P)">Pausa</button>
         <button class="btn-ok" id="btn-resume" title="Riprendi la lettura (R)">Riprendi</button>
         <button class="btn-danger" id="btn-stop" title="Ferma la lettura (S)">Stop</button>
-        <div class="segmented" role="group" aria-label="Auto-lettura token">
-          <button id="autoOn" aria-pressed="true" title="Leggi ogni token quando viene aggiunto">Auto On</button>
-          <button id="autoOff" aria-pressed="false" title="Non leggere automaticamente i token">Auto Off</button>
-        </div>
       </div>
 
       <!-- Modifica frase -->
@@ -296,51 +292,51 @@
     // Nota: per i verbi aggiuntivi non assumo esistenza di immagini → image: ""
     const CATALOG = [
       // SOGGETTI (S)
-      { cat: "S", label: "Io", speak: "Io", image: "io.png" },
+      { cat: "S", label: "Io", audio: "audio/1.mp3", image: "io.png" },
 
       // VERBI (V)
-      { cat: "V", label: "voglio", speak: "voglio", image: "volere.png" },
-      { cat: "V", label: "vorrei", speak: "vorrei", image: "" },
-      { cat: "V", label: "posso", speak: "posso", image: "" },
-      { cat: "V", label: "non voglio", speak: "non voglio", image: "" },
+      { cat: "V", label: "voglio", audio: "audio/2.mp3", image: "volere.png" },
+      { cat: "V", label: "vorrei", audio: "audio/3.mp3", image: "" },
+      { cat: "V", label: "posso", audio: "audio/4.mp3", image: "" },
+      { cat: "V", label: "non voglio", audio: "audio/5.mp3", image: "" },
 
       // OGGETTI (O) – elenco originario
-      { cat: "O", label: "il panino", speak: "il panino", image: "panino.jpg" },
-      { cat: "O", label: "il pollo", speak: "il pollo", image: "pollo.jpg" },
-      { cat: "O", label: "la pizza", speak: "la pizza", image: "pizza.jpg" },
-      { cat: "O", label: "l'insalata", speak: "l'insalata", image: "insalata.jpg" },
-      { cat: "O", label: "la melanzana", speak: "la melanzana", image: "melanzana.jpg" },
-      { cat: "O", label: "l'arancia", speak: "l'arancia", image: "arancia.jpg" },
-      { cat: "O", label: "la banana", speak: "la banana", image: "banana.jpg" },
-      { cat: "O", label: "la mela", speak: "la mela", image: "mela.jpg" },
-      { cat: "O", label: "la carota", speak: "la carota", image: "carota.jpg" },
-      { cat: "O", label: "la caramella", speak: "la caramella", image: "caramella.jpg" },
-      { cat: "O", label: "gli spaghetti", speak: "gli spaghetti", image: "spaghetti.jpg" },
-      { cat: "O", label: "il cioccolatino", speak: "il cioccolatino", image: "cioccolatino.jpg" },
-      { cat: "O", label: "il cappuccino", speak: "il cappuccino", image: "cappuccino.jpg" },
-      { cat: "O", label: "le ciliegie", speak: "le ciliegie", image: "ciliegie.jpg" },
+      { cat: "O", label: "il panino", audio: "audio/6.mp3", image: "panino.jpg" },
+      { cat: "O", label: "il pollo", audio: "audio/7.mp3", image: "pollo.jpg" },
+      { cat: "O", label: "la pizza", audio: "audio/8.mp3", image: "pizza.jpg" },
+      { cat: "O", label: "l'insalata", audio: "audio/9.mp3", image: "insalata.jpg" },
+      { cat: "O", label: "la melanzana", audio: "audio/10.mp3", image: "melanzana.jpg" },
+      { cat: "O", label: "l'arancia", audio: "audio/11.mp3", image: "arancia.jpg" },
+      { cat: "O", label: "la banana", audio: "audio/12.mp3", image: "banana.jpg" },
+      { cat: "O", label: "la mela", audio: "audio/13.mp3", image: "mela.jpg" },
+      { cat: "O", label: "la carota", audio: "audio/14.mp3", image: "carota.jpg" },
+      { cat: "O", label: "la caramella", audio: "audio/15.mp3", image: "caramella.jpg" },
+      { cat: "O", label: "gli spaghetti", audio: "audio/16.mp3", image: "spaghetti.jpg" },
+      { cat: "O", label: "il cioccolatino", audio: "audio/17.mp3", image: "cioccolatino.jpg" },
+      { cat: "O", label: "il cappuccino", audio: "audio/18.mp3", image: "cappuccino.jpg" },
+      { cat: "O", label: "le ciliegie", audio: "audio/19.mp3", image: "ciliegie.jpg" },
 
       // SOCIALI/EXTRA (X)
-      { cat: "X", label: "per favore", speak: "per favore", image: "" },
-      { cat: "X", label: "grazie", speak: "grazie", image: "" },
-      { cat: "X", label: "aiuto", speak: "aiuto", image: "" },
-      { cat: "X", label: "adesso", speak: "adesso", image: "" },
-      { cat: "X", label: "poi", speak: "poi", image: "" },
+      { cat: "X", label: "per favore", audio: "audio/20.mp3", image: "" },
+      { cat: "X", label: "grazie", audio: "audio/21.mp3", image: "" },
+      { cat: "X", label: "aiuto", audio: "audio/22.mp3", image: "" },
+      { cat: "X", label: "adesso", audio: "audio/23.mp3", image: "" },
+      { cat: "X", label: "poi", audio: "audio/24.mp3", image: "" },
 
       // PERSONE (P)
-      { cat: "P", label: "mamma", speak: "mamma", image: "" },
+      { cat: "P", label: "mamma", audio: "audio/25.mp3", image: "" },
 
       // AZIONI (A)
-      { cat: "A", label: "dormire", speak: "dormire", image: "" },
+      { cat: "A", label: "dormire", audio: "audio/26.mp3", image: "" },
 
       // LUOGHI (L)
-      { cat: "L", label: "casa", speak: "casa", image: "" },
+      { cat: "L", label: "casa", audio: "audio/27.mp3", image: "" },
 
       // TEMPO (T)
-      { cat: "T", label: "oggi", speak: "oggi", image: "" },
+      { cat: "T", label: "oggi", audio: "audio/28.mp3", image: "" },
 
       // EMOZIONI (E)
-      { cat: "E", label: "felice", speak: "felice", image: "" }
+      { cat: "E", label: "felice", audio: "audio/29.mp3", image: "" }
     ];
 
     // Colori cornice per chip/token per coerenza visiva
@@ -358,12 +354,8 @@
 
     // Stato applicativo
     const state = {
-      tokens: [],                 // lista token {cat, label, speak, image}
-      autoSpeak: true,            // lettura automatica di ogni token
+      tokens: [],                 // lista token {cat, label, audio, image}
       filter: "ALL",              // filtro categoria corrente
-      voices: [],                 // voci TTS disponibili
-      preferredVoice: null,       // voce preferita (it-IT se possibile)
-      paused: false,
       scanActive: false,          // scansione automatica attiva?
       scanSpeed: 1500,            // intervallo scansione in ms
       scanIndex: -1,              // indice corrente nella griglia
@@ -422,15 +414,15 @@
 
     function renderSentence(){
       sentenceEl.innerHTML = "";
-      state.tokens.forEach((t, idx) => {
-        const s = document.createElement("span");
+      state.tokens.forEach(t => {
+        const s = document.createElement("button");
+        s.type = "button";
         s.className = "token";
         s.dataset.cat = t.cat;
         s.style.borderColor = BORDER_BY_CAT[t.cat] || "#999";
         s.textContent = t.label;
-        s.tabIndex = 0;
-        s.title = "Token " + (idx+1);
-        s.addEventListener("click", ()=> speak(t.speak || t.label));
+        s.title = "Ascolta " + t.label;
+        s.addEventListener("click", () => playReading([t]));
         sentenceEl.appendChild(s);
       });
     }
@@ -438,7 +430,10 @@
     function renderOutput(){
       outputEl.innerHTML = "";
       state.tokens.forEach(t => {
-        const box = document.createElement("div");
+        const box = document.createElement("button");
+        box.type = "button";
+        box.title = "Ascolta " + t.label;
+        box.addEventListener("click", () => playReading([t]));
         box.className = "chip";
         box.style.borderColor = (BORDER_BY_CAT[t.cat] || "#bbb");
 
@@ -463,7 +458,7 @@
       state.tokens.push(item);
       renderSentence();
       renderOutput();
-      if (state.autoSpeak) speak(item.speak || item.label);
+      playReading([item]);
     }
 
     function undoLast(){
@@ -516,81 +511,60 @@
     scanSpeedInput.addEventListener("input", updateScanSpeed);
 
     /* ============================================================
-       TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
+       LETTURA CON AUDIO ITALIANO
        ============================================================ */
-    const synth = window.speechSynthesis;
+    const player = new Audio();
     const speechStatus = document.getElementById("speech-status");
+    let reading = null;
 
     function setSpeechStatus(message){
       speechStatus.textContent = message;
       speechStatus.hidden = !message;
     }
 
-    function refreshVoices(){
-      state.voices = synth?.getVoices() || [];
-      const italianVoices = state.voices.filter(v => /^it(?:-|$)/i.test(v.lang));
-      state.preferredVoice =
-        italianVoices.find(v => v.localService && /female|femmina|donna/i.test(v.name)) ||
-        italianVoices.find(v => v.localService) ||
-        null;
+    function playCurrentClip(){
+      const activeReading = reading;
+      player.play().catch(error => {
+        if (reading !== activeReading || error.name === "AbortError") return;
+        stopSpeak();
+        setSpeechStatus("Impossibile riprodurre l’audio. Ricarica la pagina e riprova.");
+      });
     }
-    refreshVoices();
-    // Alcuni browser popolano le voci in ritardo
-    synth?.addEventListener("voiceschanged", refreshVoices);
 
-    let currentUtterance = null;
-    let useSystemVoice = false;
-
-    function speak(text){
-      if (!text || !text.trim()) return;
-      if (!synth || typeof SpeechSynthesisUtterance !== "function"){
-        setSpeechStatus("La lettura vocale non è disponibile in questo browser.");
+    function playNextClip(){
+      const item = reading.tokens[reading.index++];
+      if (!item){
+        reading = null;
         return;
       }
-      stopSpeak();
-      if (synth.paused) synth.resume();
-      refreshVoices();
-      setSpeechStatus("");
-      queueSpeech(text, useSystemVoice ? null : state.preferredVoice);
+      player.src = item.audio;
+      playCurrentClip();
     }
 
-    function queueSpeech(text, voice){
-      currentUtterance = new SpeechSynthesisUtterance(text);
-      if (voice) currentUtterance.voice = voice;
-      currentUtterance.lang = voice?.lang || "it-IT";
-      currentUtterance.rate = 0.9;
-      currentUtterance.pitch = 0.9;
-      currentUtterance.onend = event => {
-        if (event.target === currentUtterance) currentUtterance = null;
-      };
-      currentUtterance.onerror = event => {
-        if (event.target !== currentUtterance) return;
-        currentUtterance = null;
-        if (event.error === "canceled" || event.error === "interrupted") return;
-        if (voice && event.error !== "not-allowed"){
-          useSystemVoice = true;
-          queueSpeech(text, null);
-          return;
-        }
-        setSpeechStatus("La lettura vocale non è partita. Verifica il volume multimediale e che sia disponibile una voce italiana nelle impostazioni del telefono.");
-      };
-      synth.speak(currentUtterance);
+    player.addEventListener("ended", () => {
+      if (reading && player.ended) playNextClip();
+    });
+
+    function playReading(tokens){
+      stopSpeak();
+      setSpeechStatus("");
+      reading = { tokens: [...tokens], index: 0 };
+      playNextClip();
     }
-    function pauseSpeak(){ if (synth?.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
-    function resumeSpeak(){ if (synth?.paused){ synth.resume(); state.paused = false; } }
+
+    function pauseSpeak(){ player.pause(); }
+    function resumeSpeak(){ if (reading && player.paused) playCurrentClip(); }
     function stopSpeak(){
-      currentUtterance = null;
-      if (synth && (synth.speaking || synth.pending || synth.paused)) synth.cancel();
-      state.paused = false;
+      reading = null;
+      player.pause();
     }
 
     function speakAll(){
-      const text = state.tokens.map(t => t.speak || t.label).join(" ");
-      if (!text.trim()){
+      if (!state.tokens.length){
         setSpeechStatus("Aggiungi almeno una pedina alla frase per ascoltarla.");
         return;
       }
-      speak(text);
+      playReading(state.tokens);
     }
 
     /* ============================================================
@@ -603,25 +577,16 @@
     document.getElementById("btn-stop").addEventListener("click", stopSpeak);
 
     // Auto lettura on/off
-    const autoOn  = document.getElementById("autoOn");
-    const autoOff = document.getElementById("autoOff");
-    function setAuto(val){
-      state.autoSpeak = !!val;
-      autoOn.setAttribute("aria-pressed", state.autoSpeak ? "true" : "false");
-      autoOff.setAttribute("aria-pressed", state.autoSpeak ? "false" : "true");
-      localStorage.setItem("autoSpeak", state.autoSpeak ? "1" : "0");
-    }
-    autoOn.addEventListener("click", ()=> setAuto(true));
-    autoOff.addEventListener("click",()=> setAuto(false));
-
     // Undo / Clear / Leggi token selezionato
     document.getElementById("btn-undo").addEventListener("click", undoLast);
     document.getElementById("btn-clear").addEventListener("click", clearAll);
-    document.getElementById("btn-read-token").addEventListener("click", ()=>{
-      const focused = document.activeElement;
-      if (focused && focused.classList.contains("token")){
-        speak(focused.textContent.trim());
-      }
+    let selectedToken = null;
+    sentenceEl.addEventListener("focusin", event => {
+      selectedToken = event.target.closest(".token");
+    });
+    document.getElementById("btn-read-token").addEventListener("click", () => {
+      if (selectedToken?.isConnected) selectedToken.click();
+      else setSpeechStatus("Seleziona una parola nella frase per ascoltarla.");
     });
 
     // Slider dimensioni e spaziatura
@@ -670,6 +635,8 @@
       }
       if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
 
+      if (e.defaultPrevented || (e.key === "Enter" && e.target.closest("button"))) return;
+
       if (e.key === "Enter"){
         e.preventDefault(); speakAll();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==="z"){
@@ -699,13 +666,11 @@
        PERSISTENZA PREFERENZE
        ============================================================ */
       (function restorePrefs(){
-        const as = localStorage.getItem("autoSpeak");
         const ts = localStorage.getItem("tileSize");
         const gs = localStorage.getItem("gapSize");
         const hc = localStorage.getItem("contrast");
         const ss = localStorage.getItem("scanSpeed");
 
-        if (as !== null) setAuto(as==="1");
         if (ts){ size.value = ts; }
         if (gs){ gap.value  = gs; }
         applySizes();
@@ -736,8 +701,8 @@
        - Immagini caricate da https://www.vitopalumbo.it/INCLUSIONE/
        - Nessun backend. Tutto client-side.
        - Accessibilità: pulsanti <button>, aria-pressed, focus visibile, tastiera.
-       - Preferenze utente (auto-lettura, dimensioni, contrasto) persistite in localStorage.
-       - TTS robusto con gestione voci it-IT e controlli pausa/riprendi/stop.
+       - Preferenze utente (dimensioni e contrasto) persistite in localStorage.
+       - Audio italiano incluso e controlli pausa/riprendi/stop.
        - Filtro categorie per ridurre carico visivo.
        ========================= -->
 </body>
