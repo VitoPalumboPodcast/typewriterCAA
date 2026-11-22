@@ -97,6 +97,18 @@
     #btn-clear{ margin-inline-start:auto; }
     .vocabulary{ margin-top:1rem; }
     .categories{ margin:.5rem 0 .75rem; }
+    .categories button{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      background:#f0f2f5;
+      font-weight:600;
+    }
+    .categories button[aria-pressed="true"]{
+      color:#fff;
+      background:var(--accent);
+    }
+    .category-icon{ font-size:1.15em; line-height:1; }
     .tile{ scroll-margin-block-start:min(15rem, 55dvh); }
     .tile.scanning{ outline:3px solid var(--accent); outline-offset:2px; }
     .settings{
@@ -311,7 +323,7 @@
     const state = {
       clearedPhrase: null,
       tokens: [],                 // lista token {cat, label, audio, image}
-      filter: "ALL",              // filtro categoria corrente
+      activeFilters: new Set(),
       scanActive: false,          // scansione automatica attiva?
       scanSpeed: 1500,            // intervallo scansione in ms
       scanIndex: -1,              // indice corrente nella griglia
@@ -331,7 +343,8 @@
 
     function buildGrid(){
       gridEl.innerHTML = "";
-      const items = CATALOG.filter(it => state.filter === "ALL" || FILTERS[state.filter].cats.includes(it.cat));
+      const activeCategories = new Set([...state.activeFilters].flatMap(value => FILTERS[value].cats));
+      const items = CATALOG.filter(it => !activeCategories.size || activeCategories.has(it.cat));
       for (const it of items){
         const b = document.createElement("button");
         b.className = `tile ${it.cat}`;
@@ -579,37 +592,51 @@
     const filters = document.getElementById("filters");
     const categoryOptions = document.getElementById("category-options");
     const FILTERS = {
-      FOOD:{ label:"Cibo", cats:["O"] },
-      PEOPLE:{ label:"Persone", cats:["S","P"] },
-      ACTIONS:{ label:"Azioni", cats:["V","A"] },
-      SOCIAL:{ label:"Conversazione", cats:["X"] },
-      PLACES:{ label:"Luoghi", cats:["L"] },
-      TIME:{ label:"Tempo", cats:["T"] },
-      FEELINGS:{ label:"Emozioni", cats:["E"] }
+      FOOD:{ label:"Cibo", icon:"🍎", cats:["O"] },
+      PEOPLE:{ label:"Persone", icon:"👥", cats:["S","P"] },
+      ACTIONS:{ label:"Azioni", icon:"🚶", cats:["V","A"] },
+      SOCIAL:{ label:"Conversazione", icon:"💬", cats:["X"] },
+      PLACES:{ label:"Luoghi", icon:"🏠", cats:["L"] },
+      TIME:{ label:"Tempo", icon:"🕒", cats:["T"] },
+      FEELINGS:{ label:"Emozioni", icon:"🙂", cats:["E"] }
     };
 
-    function selectFilter(value){
-      state.filter = value;
+    function updateFilters(){
       for (const button of filters.querySelectorAll("button")){
-        button.setAttribute("aria-pressed", String(button.dataset.filter === value));
+        const value = button.dataset.filter;
+        const pressed = value === "ALL" ? !state.activeFilters.size : state.activeFilters.has(value);
+        button.setAttribute("aria-pressed", String(pressed));
       }
       buildGrid();
     }
 
+    function toggleFilter(value){
+      if (value === "ALL") state.activeFilters.clear();
+      else if (state.activeFilters.has(value)) state.activeFilters.delete(value);
+      else state.activeFilters.add(value);
+      updateFilters();
+    }
+
     function renderFilters(){
       const enabled = [...categoryOptions.querySelectorAll("input:checked")].map(input => input.value);
+      state.activeFilters = new Set([...state.activeFilters].filter(value => enabled.includes(value)));
       filters.replaceChildren();
       filters.hidden = !enabled.length;
       for (const value of ["ALL", ...enabled]){
         const button = document.createElement("button");
         button.type = "button";
         button.dataset.filter = value;
-        button.textContent = value === "ALL" ? "Tutte" : FILTERS[value].label;
-        button.addEventListener("click", () => selectFilter(value));
+        const category = value === "ALL" ? { label:"Tutte", icon:"▦" } : FILTERS[value];
+        const icon = document.createElement("span");
+        icon.className = "category-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = category.icon;
+        button.append(icon, category.label);
+        button.addEventListener("click", () => toggleFilter(value));
         filters.appendChild(button);
       }
       localStorage.setItem("visibleCategories", enabled.join(","));
-      selectFilter(enabled.includes(state.filter) ? state.filter : "ALL");
+      updateFilters();
     }
 
     function applyContrast(){
