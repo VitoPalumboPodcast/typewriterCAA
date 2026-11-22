@@ -263,6 +263,7 @@
     <div class="section" aria-live="polite" aria-label="Frase composta">
       <h2>Frase</h2>
       <div id="sentence"></div>
+      <p id="speech-status" class="note" role="status" hidden></p>
       <div id="output" class="mt"></div>
       <p class="note">Suggerimento: clicca le pedine in basso. <kbd>Invio</kbd> legge tutta la frase. <kbd>Ctrl</kbd>+<kbd>Z</kbd> annulla l’ultimo token. Usa <em>Filtra categoria</em> per ridurre il carico visivo.</p>
     </div>
@@ -518,40 +519,77 @@
        TTS ROBUSTO (PAUSA/RIPRESA/STOP + VOCI it-IT)
        ============================================================ */
     const synth = window.speechSynthesis;
+    const speechStatus = document.getElementById("speech-status");
+
+    function setSpeechStatus(message){
+      speechStatus.textContent = message;
+      speechStatus.hidden = !message;
+    }
 
     function refreshVoices(){
-      state.voices = synth.getVoices() || [];
-      // Priorità: voce it-IT femminile → qualsiasi it-IT → default
+      state.voices = synth?.getVoices() || [];
+      const italianVoices = state.voices.filter(v => /^it(?:-|$)/i.test(v.lang));
       state.preferredVoice =
-        state.voices.find(v => (v.lang || "").toLowerCase()==="it-it" && /female|femmina|donna/i.test(v.name)) ||
-        state.voices.find(v => (v.lang || "").toLowerCase()==="it-it") ||
+        italianVoices.find(v => v.localService && /female|femmina|donna/i.test(v.name)) ||
+        italianVoices.find(v => v.localService) ||
         null;
     }
     refreshVoices();
     // Alcuni browser popolano le voci in ritardo
-    if (typeof window !== "undefined"){
-      window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
-    }
+    synth?.addEventListener("voiceschanged", refreshVoices);
 
     let currentUtterance = null;
+    let useSystemVoice = false;
 
     function speak(text){
       if (!text || !text.trim()) return;
-      stopSpeak(); // interrompe eventuale coda in corso e riparte
+      if (!synth || typeof SpeechSynthesisUtterance !== "function"){
+        setSpeechStatus("La lettura vocale non è disponibile in questo browser.");
+        return;
+      }
+      stopSpeak();
+      if (synth.paused) synth.resume();
+      refreshVoices();
+      setSpeechStatus("");
+      queueSpeech(text, useSystemVoice ? null : state.preferredVoice);
+    }
+
+    function queueSpeech(text, voice){
       currentUtterance = new SpeechSynthesisUtterance(text);
-      if (state.preferredVoice) currentUtterance.voice = state.preferredVoice;
-      currentUtterance.lang = (state.preferredVoice?.lang) || "it-IT";
+      if (voice) currentUtterance.voice = voice;
+      currentUtterance.lang = voice?.lang || "it-IT";
       currentUtterance.rate = 0.9;
       currentUtterance.pitch = 0.9;
+      currentUtterance.onend = event => {
+        if (event.target === currentUtterance) currentUtterance = null;
+      };
+      currentUtterance.onerror = event => {
+        if (event.target !== currentUtterance) return;
+        currentUtterance = null;
+        if (event.error === "canceled" || event.error === "interrupted") return;
+        if (voice && event.error !== "not-allowed"){
+          useSystemVoice = true;
+          queueSpeech(text, null);
+          return;
+        }
+        setSpeechStatus("La lettura vocale non è partita. Verifica il volume multimediale e che sia disponibile una voce italiana nelle impostazioni del telefono.");
+      };
       synth.speak(currentUtterance);
+    }
+    function pauseSpeak(){ if (synth?.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
+    function resumeSpeak(){ if (synth?.paused){ synth.resume(); state.paused = false; } }
+    function stopSpeak(){
+      currentUtterance = null;
+      if (synth && (synth.speaking || synth.pending || synth.paused)) synth.cancel();
       state.paused = false;
     }
-    function pauseSpeak(){ if (synth.speaking && !synth.paused){ synth.pause(); state.paused = true; } }
-    function resumeSpeak(){ if (synth.paused){ synth.resume(); state.paused = false; } }
-    function stopSpeak(){ if (synth.speaking || synth.paused){ synth.cancel(); } state.paused=false; }
 
     function speakAll(){
       const text = state.tokens.map(t => t.speak || t.label).join(" ");
+      if (!text.trim()){
+        setSpeechStatus("Aggiungi almeno una pedina alla frase per ascoltarla.");
+        return;
+      }
       speak(text);
     }
 
